@@ -1,7 +1,7 @@
 # Arch Linux WSL Image
 
 ---
-⚠️⚠️⚠️ **Important Notes:**  
+⚠️⚠️⚠️ **Important Notes:**
 
 - This is not official. Arch Linux on WSL is currently unsupported. This repo currently is a proposal, see [the related thread](https://lists.archlinux.org/archives/list/arch-dev-public@lists.archlinux.org/thread/73A4BK7YK4BJBVXGMN2I5CROQAWI53VZ/).
 - Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
@@ -16,10 +16,10 @@ Images are built and [released](https://gitlab.archlinux.org/antiz/archlinux-wsl
 While images are regularly built it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
 ---
-⚠️⚠️⚠️ **Important Notes:**  
+⚠️⚠️⚠️ **Important Notes:**
 
-For Security Reasons, this image strips the pacman lsign key.  
-This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first execution, but be careful to not redistribute that key.
+> For Security Reasons, this image strips the pacman lsign key.  
+> This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first execution, but be careful to not redistribute that key.
 ---
 
 ## Installation
@@ -32,7 +32,7 @@ From a Windows system with WSL2 installed, run the following command in a PowerS
 wsl --install ArchLinux
 ```
 
-You can then run Arch Linux in WSL via `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.
+You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.
 
 ### Manual install
 
@@ -57,7 +57,7 @@ wsl --import ArchLinux C:\Users\<Username>\Documents\WSL\ArchLinux C:\Users\<Use
 ```
 
 You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.  
-Make sure to execute the first setup script by running the `/etc/wsl-first-setup.sh` command right after the first launch.
+Make sure to execute the first setup script by running `/etc/wsl-first-setup.sh` right after the first launch.
 
 ## Building your own image
 
