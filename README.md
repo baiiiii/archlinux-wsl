@@ -1,93 +1,78 @@
-# archlinux-wsl
+# Arch Linux WSL Image
 
+---
+⚠️⚠️⚠️ **Important Notes:**  
 
+- This is not official. Arch Linux on WSL is currently unsupported. This repo currently is a proposal, see [the related thread](https://lists.archlinux.org/archives/list/arch-dev-public@lists.archlinux.org/thread/73A4BK7YK4BJBVXGMN2I5CROQAWI53VZ/).
+- Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
+---
 
-## Getting started
+[![CI Status](https://gitlab.archlinux.org/antiz/archlinux-wsl/badges/master/pipeline.svg)](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipelines)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Arch Linux provides a WSL image.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Images are built and [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipeline_schedules) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL.
 
-## Add your files
+While images are regularly built it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+---
+⚠️⚠️⚠️ **Important Notes:**  
 
-```
-cd existing_repo
-git remote add origin https://gitlab.archlinux.org/antiz/archlinux-wsl.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+For Security Reasons, this image strips the pacman lsign key.  
+This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first execution, but be careful to not redistribute that key.
+---
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Automated install
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+From a Windows system with WSL2 installed, run the following command in a PowerShell prompt:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```powershell
+wsl --install ArchLinux
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+You can then run Arch Linux in WSL via `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Manual install
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+#### WSL 2.4.4 or greater
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
 
-## License
-For open source projects, say how it is licensed.
+You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+#### WSL prior to 2.4.4
+
+Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases/permalink/latest) and run the following command in a PowerShell prompt:
+
+```powershell
+wsl --import <DistroName> <InstallLocation> <WslImage>
+```
+
+For instance:
+
+```powershell
+wsl --import ArchLinux C:\Users\<Username>\Documents\WSL\ArchLinux C:\Users\<Username>\Downloads\archlinux-2025.01.01.wsl
+```
+
+You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.  
+Make sure to execute the first setup script by running the `/etc/wsl-first-setup.sh` command right after the first launch.
+
+## Building your own image
+
+This repository contains all scripts and files needed to create a WSL image for Arch Linux.
+
+### Dependencies
+
+Install the following Arch Linux packages:
+
+- make
+- devtools
+- fakechroot
+- fakeroot
+
+### Usage
+
+Run `make` to build a new image (which can be found in the `output` directory).  
+Optionally, run `make clean` to remove every directory, files & artifacts generated during the build (including the built image itself).
