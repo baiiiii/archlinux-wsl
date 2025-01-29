@@ -1,7 +1,7 @@
 # Arch Linux WSL Image
 
 ---
-⚠️⚠️⚠️ **Important Notes:**
+⚠️⚠️⚠️ **Important notes:**
 
 - This is not official. Arch Linux on WSL is currently unsupported. This repo currently is a proposal, see [the related thread](https://lists.archlinux.org/archives/list/arch-dev-public@lists.archlinux.org/thread/73A4BK7YK4BJBVXGMN2I5CROQAWI53VZ/).
 - Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
@@ -16,7 +16,7 @@ Images are built and [released](https://gitlab.archlinux.org/antiz/archlinux-wsl
 While images are regularly built it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
 ---
-⚠️⚠️⚠️ **Important Notes:**
+⚠️⚠️⚠️ **NOTE:**
 
 > For Security Reasons, this image strips the pacman lsign key.  
 > This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first run of the image (if you need one), but be careful to not redistribute that key.
