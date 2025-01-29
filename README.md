@@ -1,6 +1,6 @@
 # Arch Linux WSL Image
 
-⚠️⚠️⚠️ **Important notes:**
+⚠️⚠️⚠️ **DISCLAIMER:**
 
 > This is not official. Arch Linux on WSL is currently unsupported. This repo currently is a proposal, see [the related thread](https://lists.archlinux.org/archives/list/arch-dev-public@lists.archlinux.org/thread/73A4BK7YK4BJBVXGMN2I5CROQAWI53VZ/).  
 > Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
@@ -9,9 +9,9 @@
 
 Arch Linux provides a WSL image.
 
-Images are built and [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipeline_schedules) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL.
+Images are built & [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipeline_schedules) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL.
 
-While images are regularly built it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
+While images are built regularly, it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
 ---
 ⚠️⚠️⚠️ **NOTE:**
@@ -72,5 +72,5 @@ Install the following Arch Linux packages:
 
 ### Usage
 
-Run `make` to build a new image (which can be found in the `output` directory).  
-Optionally, run `make clean` to remove every directory, files & artifacts generated during the build (including the built image itself).
+Run `make` to build a new image (which can be then found in the `output` directory).  
+Optionally, run `make clean` to remove every directories, files & artifacts generated during build (including the built image itself).
