@@ -3,7 +3,10 @@
 set -euo pipefail
 
 declare -r WRAPPER="fakechroot -- fakeroot"
-declare -r DATE=$(date +"%Y.%m.%d")
+
+today=$(date +"%Y.%m.%d")
+declare -r DATE="$today"
+
 declare -r BUILDDIR="$1"
 declare -r OUTPUTDIR="$2"
 
