@@ -99,8 +99,7 @@ create-release:
   dependencies:
     - set-variables
   script:
-    - |
-      echo "Creating ${IMAGE_VERSION} release"
+    - echo "Creating ${IMAGE_VERSION} release"
   release:
     name: "Release ${IMAGE_VERSION}"
     description: "Release ${IMAGE_VERSION}"
