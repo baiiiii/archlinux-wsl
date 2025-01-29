@@ -47,7 +47,7 @@ make-clean:
 make-build:
   stage: build
   before_script:
-    - pacman -Syu --needed --noconfirm make
+    - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot
   script:
     - make build
   rules:
