@@ -18,17 +18,17 @@ sed 's/Include = /&rootfs/g' < "$BUILDDIR/etc/pacman.conf" > pacman.conf
 cp --recursive --preserve=timestamps rootfs/* "$BUILDDIR/"
 ln -sf /usr/lib/os-release "$BUILDDIR/etc/os-release"
 
-"$WRAPPER" -- \
+$WRAPPER -- \
     pacman -Sy -r "$BUILDDIR" \
         --noconfirm --dbpath "$BUILDDIR/var/lib/pacman" \
         --config pacman.conf \
         --noscriptlet \
         --hookdir "$BUILDDIR/alpm-hooks/usr/share/libalpm/hooks/" base
 
-"$WRAPPER" -- chroot "$BUILDDIR" update-ca-trust
-"$WRAPPER" -- chroot "$BUILDDIR" pacman-key --init
-"$WRAPPER" -- chroot "$BUILDDIR" pacman-key --populate
-"$WRAPPER" -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
+$WRAPPER -- chroot "$BUILDDIR" update-ca-trust
+$WRAPPER -- chroot "$BUILDDIR" pacman-key --init
+$WRAPPER -- chroot "$BUILDDIR" pacman-key --populate
+$WRAPPER -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
 
 # fakeroot to map the gid/uid of the builder process to root
 # See https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/22
