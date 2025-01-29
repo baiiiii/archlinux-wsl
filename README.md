@@ -19,7 +19,7 @@ While images are regularly built it is strongly recommended running `pacman -Syu
 ⚠️⚠️⚠️ **Important Notes:**
 
 > For Security Reasons, this image strips the pacman lsign key.  
-> This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first execution, but be careful to not redistribute that key.
+> This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first run of the image (if you need one), but be careful to not redistribute that key.
 ---
 
 ## Installation
