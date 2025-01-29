@@ -53,9 +53,23 @@ make-build:
   artifacts:
     paths:
       - output/*
-    expire_in: 2h
+    expire_in: 1h
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+set-variables:
+  stage: release
+  script:
+  - |
+    export IMAGE_VERSION=$(date +"%Y.%m.%d")
+    export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
+    echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
+    echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+  rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 upload-image-to-package-registry:
@@ -63,13 +77,39 @@ upload-image-to-package-registry:
   needs:
     - make-clean
     - make-build
+    - set-variables
+  dependencies:
+    - make-build
+    - set-variables
   script:
     - | 
-      export IMAGE_VERSION=$(date +"%Y.%m.%d")
-      export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl"
       curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl" "${PACKAGE_REGISTRY_URL}/"
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl.SHA256"
       curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl.SHA256" "${PACKAGE_REGISTRY_URL}/"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+create-release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - upload-image-to-package-registry
+    - set-variables
+  dependencies:
+    - set-variables
+  script:
+    - |
+      echo "Creating ${IMAGE_VERSION} release"
+  release:
+    name: "Release ${IMAGE_VERSION}"
+    description: "Release ${IMAGE_VERSION}"
+    tag_name: "${IMAGE_VERSION}"
+    assets:
+      links:
+        - name: "archlinux-${IMAGE_VERSION}.wsl"
+          url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl"
+        - name: "archlinux-${IMAGE_VERSION}.wsl.SHA256"
+          url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl.SHA256"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
