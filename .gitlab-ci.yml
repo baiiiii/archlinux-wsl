@@ -50,16 +50,26 @@ make-build:
     - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot
   script:
     - make build
+  artifacts:
+    paths:
+      - output/*
+    expire_in: 2h
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-create-release:
+upload-image-to-package-registry:
   stage: release
   needs:
     - make-clean
     - make-build
   script:
-    - echo "Hello"
+    - | 
+      export IMAGE_VERSION=$(date +"%Y.%m.%d")
+      export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
+      echo "Uploading archlinux-${IMAGE_VERSION}.wsl"
+      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl" "${PACKAGE_REGISTRY_URL}/"
+      echo "Uploading archlinux-${IMAGE_VERSION}.wsl.SHA256"
+      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl.SHA256" "${PACKAGE_REGISTRY_URL}/"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
