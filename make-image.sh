@@ -47,5 +47,5 @@ fakeroot -- \
 
 cd "$OUTPUTDIR"
 zstd --rm --long -T0 -8 "archlinux-$DATE.tar"
-mv "archlinux-$DATE.tar.zst" "archlinux-$DATE.wsl"
+mv -v "archlinux-$DATE.tar.zst" "archlinux-$DATE.wsl"
 sha256sum "archlinux-$DATE.wsl" > "archlinux-$DATE.wsl.SHA256"
