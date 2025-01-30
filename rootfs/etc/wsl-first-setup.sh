@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Cancel the systemd-firstboot.service at first run which hangs forever, preventing any other systemd services to start.
-systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '{print $1}')"
+# Canceling it once at first boot is enough to "fix" it permanently.
+# The actual root cause of this issue (and the eventual proper fix for it) is not known yet.
+# Hopefully we can drop that workaround at some point.
+systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '{print $1}')" || true
 
 # Show some documentation
 cat <<EOF
