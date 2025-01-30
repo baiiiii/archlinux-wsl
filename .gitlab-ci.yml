@@ -46,6 +46,8 @@ make-clean:
 
 make-build:
   stage: build
+  needs:
+    - make-clean
   before_script:
     - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot
   script:
@@ -75,7 +77,6 @@ set-variables:
 upload-image-to-package-registry:
   stage: release
   needs:
-    - make-clean
     - make-build
     - set-variables
   dependencies:
