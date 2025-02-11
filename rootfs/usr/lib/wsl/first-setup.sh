@@ -10,6 +10,8 @@ systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '
 cat <<EOF
 Welcome to the Arch Linux WSL image!
 
+This image is maintained at https://gitlab.archlinux.org/archlinux/archlinux-wsl.
+
 While images are regularly built it is strongly recommended running "pacman -Syu" right after the first launch due to the rolling release nature of Arch Linux.
 
 NOTE:
