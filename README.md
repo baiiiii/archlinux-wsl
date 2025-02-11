@@ -27,10 +27,10 @@ While images are built regularly, it is strongly recommended running `pacman -Sy
 From a Windows system with WSL2 installed, run the following command in a PowerShell prompt:
 
 ```powershell
-wsl --install ArchLinux
+wsl --install archlinux
 ```
 
-You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.
+You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.
 
 ### Manual install
 
@@ -38,7 +38,7 @@ You can then run Arch Linux in WSL via the `ArchLinux` application from the Star
 
 Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
 
-You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.
+You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.
 
 #### WSL prior to 2.4.4
 
@@ -51,10 +51,10 @@ wsl --import <Distro name> <Install location> <WSL image>
 For instance:
 
 ```powershell
-wsl --import ArchLinux C:\Users\<Username>\Documents\WSL\ArchLinux C:\Users\<Username>\Downloads\archlinux-2025.01.01.wsl
+wsl --import archlinux C:\Users\<Username>\Documents\WSL\archlinux C:\Users\<Username>\Downloads\archlinux-2025.01.01.wsl
 ```
 
-You can then run Arch Linux in WSL via the `ArchLinux` application from the Start menu, or by running `wsl -d ArchLinux` in a PowerShell prompt.  
+You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.  
 Make sure to execute the first setup script by running `/usr/lib/wsl/first-setup.sh` right after the first launch.
 
 ## Building your own image
