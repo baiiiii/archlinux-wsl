@@ -16,8 +16,8 @@ While images are built regularly, it is strongly recommended running `pacman -Sy
 ---
 ⚠️⚠️⚠️ **NOTE:**
 
-> For Security Reasons, this image strips the pacman lsign key.  
-> This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key run `pacman-key --init` on the first run of the image (if you need one), but be careful to not redistribute that key.
+> For security reasons, this image strips the pacman lsign key.  
+> This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key (if you need one) run `pacman-key --init` on the first run of the image, but be careful to not redistribute that key.
 ---
 
 ## Installation
@@ -74,3 +74,30 @@ Install the following Arch Linux packages:
 
 Run `make` to build a new image (which can be then found in the `output` directory).  
 Optionally, run `make clean` to remove every directories, files & artifacts generated during build (including the built image itself).
+
+## Known issues
+
+### systemd support
+
+This Arch Linux WSL image provides `systemd` support.  
+However, there are known pending issues that may require additional actions for `systemd` to work properly:
+
+#### systemd-firstboot.service hanging
+
+The `systemd-firstboot.service` job [hangs at first boot](https://github.com/yuk7/ArchWSL/issues/356#issuecomment-2039008495), preventing any other systemd services to start.
+
+A workaround is to cancel it by running `systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '{print $1}')"`.  
+This is automatically done by the [first-setup script](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/blob/main/rootfs/usr/lib/wsl/first-setup.sh?ref_type=heads) when running the image for the first time.
+
+The actual root cause of this issue (and the eventual proper fix for it) is not known yet.
+
+#### systemd requires plain cgroup v2 support
+
+Currently, WSL2 starts systems [with cgroup v1 support by default](https://github.com/microsoft/WSL/issues/11857) but `systemd` >= 256 [dropped support for it](https://github.com/systemd/systemd/releases/tag/v256) and requires plain cgroup v2 support.
+
+While waiting for WSL2 to start systems with plain cgroup v2 support by default, you can force it by disabling cgroup v1 support in the `%USERPROFILE%/.wslconfig` file on your Windows system (create it if it doesn't exists) with the following content:
+
+```text
+[wsl2]
+kernelCommandLine = cgroup_no_v1=all systemd.unified_cgroup_hierarchy=1
+```
