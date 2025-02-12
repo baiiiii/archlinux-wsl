@@ -9,16 +9,9 @@
 
 Arch Linux provides a WSL image.
 
-Images are built & [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipeline_schedules)) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL (including `systemd` support out of the box).
+Images are built & [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipeline_schedules)) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL (including `systemd` support).
 
 While images are built regularly, it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
-
----
-⚠️⚠️⚠️ **NOTE:**
-
-> For security reasons, this image strips the pacman lsign key.  
-> This is because the same key would be spread to all Arch WSL installation of the same image, allowing for malicious actors to inject packages (via, for example, a man-in-the-middle). In order to create a lsign-key (if you need one) run `pacman-key --init` on the first run of the image, but be careful to not redistribute that key.
----
 
 ## Installation
 
