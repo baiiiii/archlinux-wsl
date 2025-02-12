@@ -14,7 +14,7 @@ While images are built regularly, it is strongly recommended running "pacman -Sy
 EOF
 
 # Generate pacman lsign key
-echo -e "\nGenerating pacman lsign key..." && pacman-key --init > /dev/null && echo "Done"
+echo -e "\nGenerating pacman lsign key..." && pacman-key --init 2> /dev/null && echo "Done"
 
 # See https://gitlab.archlinux.org/antiz/archlinux-wsl/#known-issues
 systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '{print $1}')" 2> /dev/null || true
