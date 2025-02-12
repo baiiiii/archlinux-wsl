@@ -4,7 +4,7 @@
 cat <<EOF
 Welcome to the Arch Linux WSL image!
 
-This image is maintained at https://gitlab.archlinux.org/archlinux/archlinux-wsl.
+This image is maintained at https://gitlab.archlinux.org/antiz/archlinux-wsl.
 
 It provides systemd support.
 However, there are known pending issues that may require additional actions for systemd to work properly.
