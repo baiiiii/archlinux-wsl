@@ -2,7 +2,7 @@
 
 ⚠️⚠️⚠️ **DISCLAIMER:**
 
-> This is not official. Arch Linux on WSL is currently unsupported. This repo currently is a proposal, see [the related thread](https://lists.archlinux.org/archives/list/arch-dev-public@lists.archlinux.org/thread/73A4BK7YK4BJBVXGMN2I5CROQAWI53VZ/).  
+> This is not official. Arch Linux on WSL is currently unsupported. This repo is a proposal, see [the related RFC](https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/50).  
 > Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
 
 [![CI Status](https://gitlab.archlinux.org/antiz/archlinux-wsl/badges/main/pipeline.svg)](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipelines)
