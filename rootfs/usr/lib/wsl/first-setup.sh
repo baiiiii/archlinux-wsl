@@ -10,6 +10,8 @@ It provides systemd support.
 However, there are known pending issues that may require additional actions for systemd to work properly.
 See https://gitlab.archlinux.org/antiz/archlinux-wsl#known-issues for more details.
 
+Please, report bugs at https://gitlab.archlinux.org/antiz/archlinux-wsl/-/issues.
+
 While images are built regularly, it is strongly recommended running "pacman -Syu" right after the first launch due to the rolling release nature of Arch Linux.
 EOF
 
