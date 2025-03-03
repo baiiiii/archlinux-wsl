@@ -1,10 +1,5 @@
 # Arch Linux WSL Image
 
-⚠️⚠️⚠️ **DISCLAIMER:**
-
-> This is not official. Arch Linux on WSL is currently unsupported. This repo is a proposal, see [the related RFC](https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/50).  
-> Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
-
 [![CI Status](https://gitlab.archlinux.org/archlinux/archlinux-wsl/badges/main/pipeline.svg)](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/pipelines)
 
 Arch Linux provides a WSL image.
@@ -23,6 +18,8 @@ cosign verify-blob archlinux-2025.04.01.121271.wsl --bundle archlinux-2025.04.01
 ## Installation
 
 ### Automated install
+
+**Warning:** This automated install method is a work in progress and is not yet functional!
 
 From a Windows system with WSL2 installed, run the following command in a PowerShell prompt:
 
