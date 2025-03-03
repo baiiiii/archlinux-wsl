@@ -48,10 +48,17 @@ make-build:
   stage: build
   needs:
     - make-clean
+  variables:
+    COSIGN_YES: "true"
+  id_tokens:
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
   before_script:
-    - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot
+    - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot cosign
   script:
+    - export IMAGE_VERSION=$(date +"%Y.%m.%d")
     - make build
+    - cosign sign-blob output/archlinux-${IMAGE_VERSION}.wsl --bundle output/archlinux-${IMAGE_VERSION}.wsl.sig
   artifacts:
     paths:
       - output/*
@@ -88,6 +95,8 @@ upload-image-to-package-registry:
       curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl" "${PACKAGE_REGISTRY_URL}/"
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl.SHA256"
       curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl.SHA256" "${PACKAGE_REGISTRY_URL}/"
+      echo "Uploading archlinux-${IMAGE_VERSION}.wsl.sig"
+      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl.sig" "${PACKAGE_REGISTRY_URL}/"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
@@ -111,5 +120,7 @@ create-release:
           url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl"
         - name: "archlinux-${IMAGE_VERSION}.wsl.SHA256"
           url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl.SHA256"
+        - name: "archlinux-${IMAGE_VERSION}.wsl.sig"
+          url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl.sig"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'

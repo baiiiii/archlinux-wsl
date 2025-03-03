@@ -13,6 +13,13 @@ Images are built & [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-
 
 While images are built regularly, it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
+Images are signed using [Sigstore Cosign keyless signing](https://docs.gitlab.com/ci/yaml/signing_examples/).  
+An image can be verified with the following command:
+
+```bash
+cosign verify-blob archlinux-2025.04.01.wsl --bundle archlinux-2025.04.01.wsl.sig --certificate-identity "https://gitlab.archlinux.org/antiz/archlinux-wsl//.gitlab-ci.yml@refs/heads/main" --certificate-oidc-issuer "https://gitlab.archlinux.org"
+```
+
 ## Installation
 
 ### Automated install
