@@ -51,7 +51,7 @@ wsl --import <Distro name> <Install location> <WSL image>
 For instance:
 
 ```powershell
-wsl --import archlinux C:\Users\<Username>\Documents\WSL\archlinux C:\Users\<Username>\Downloads\archlinux-2025.01.01.wsl
+wsl --import archlinux C:\Users\<Username>\Documents\WSL\archlinux C:\Users\<Username>\Downloads\archlinux-2025.04.01.121271.wsl
 ```
 
 You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.  
