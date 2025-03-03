@@ -5,11 +5,11 @@
 > This is not official. Arch Linux on WSL is currently unsupported. This repo is a proposal, see [the related RFC](https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/50).  
 > Some of the stuff described here might not be implemented / working yet (and there's currently no guarantee that they ever will).
 
-[![CI Status](https://gitlab.archlinux.org/antiz/archlinux-wsl/badges/main/pipeline.svg)](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipelines)
+[![CI Status](https://gitlab.archlinux.org/archlinux/archlinux-wsl/badges/main/pipeline.svg)](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/pipelines)
 
 Arch Linux provides a WSL image.
 
-Images are built & [released](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/pipeline_schedules)) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL (including `systemd` support).
+Images are built & [released](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/pipeline_schedules)) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL (including `systemd` support).
 
 While images are built regularly, it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
@@ -17,7 +17,7 @@ Images are signed using [Sigstore Cosign keyless signing](https://docs.gitlab.co
 An image can be verified with the following command:
 
 ```bash
-cosign verify-blob archlinux-2025.04.01.wsl --bundle archlinux-2025.04.01.wsl.sig --certificate-identity "https://gitlab.archlinux.org/antiz/archlinux-wsl//.gitlab-ci.yml@refs/heads/main" --certificate-oidc-issuer "https://gitlab.archlinux.org"
+cosign verify-blob archlinux-2025.04.01.121271.wsl --bundle archlinux-2025.04.01.121271.wsl.sig --certificate-identity "https://gitlab.archlinux.org/archlinux/archlinux-wsl//.gitlab-ci.yml@refs/heads/main" --certificate-oidc-issuer "https://gitlab.archlinux.org"
 ```
 
 ## Installation
@@ -36,13 +36,13 @@ You can then run Arch Linux in WSL via the `archlinux` application from the Star
 
 #### WSL 2.4.4 or greater
 
-Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
+Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
 
 You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.
 
 #### WSL prior to 2.4.4
 
-Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/releases/permalink/latest) and run the following command in a PowerShell prompt:
+Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and run the following command in a PowerShell prompt:
 
 ```powershell
 wsl --import <Distro name> <Install location> <WSL image>
@@ -87,7 +87,7 @@ However, there are known pending issues that may require additional actions for 
 The `systemd-firstboot.service` job [hangs at first boot](https://github.com/yuk7/ArchWSL/issues/356#issuecomment-2039008495), preventing any other systemd services to start.
 
 A workaround is to cancel it by running `systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '{print $1}')"`.  
-This is automatically done by the [first-setup script](https://gitlab.archlinux.org/antiz/archlinux-wsl/-/blob/main/rootfs/usr/lib/wsl/first-setup.sh?ref_type=heads) when running the image for the first time.
+This is automatically done by the [first-setup script](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/blob/main/rootfs/usr/lib/wsl/first-setup.sh?ref_type=heads) when running the image for the first time.
 
 The actual root cause of this issue (and the eventual proper fix for it) is not known yet.
 
