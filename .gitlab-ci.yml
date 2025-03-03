@@ -4,6 +4,7 @@ default:
 stages:
   - lint
   - clean
+  - vars
   - build
   - release
 
@@ -44,10 +45,28 @@ make-clean:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
+set-variables:
+  stage: vars
+  script:
+  - |
+    export IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
+    export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
+    echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
+    echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
 make-build:
   stage: build
   needs:
     - make-clean
+    - set-variables
+  dependencies:
+    - set-variables
   variables:
     COSIGN_YES: "true"
   id_tokens:
@@ -56,8 +75,7 @@ make-build:
   before_script:
     - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot cosign
   script:
-    - export IMAGE_VERSION=$(date +"%Y.%m.%d")
-    - make build
+    - make build IMAGE_VERSION="${IMAGE_VERSION}"
     - cosign sign-blob output/archlinux-${IMAGE_VERSION}.wsl --bundle output/archlinux-${IMAGE_VERSION}.wsl.sig
   artifacts:
     paths:
@@ -65,20 +83,6 @@ make-build:
     expire_in: 1h
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
-set-variables:
-  stage: release
-  script:
-  - |
-    export IMAGE_VERSION=$(date +"%Y.%m.%d")
-    export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
-    echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
-    echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
-  artifacts:
-    reports:
-      dotenv: variables.env
-  rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 upload-image-to-package-registry:

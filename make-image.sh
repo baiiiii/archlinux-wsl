@@ -4,11 +4,9 @@ set -euo pipefail
 
 declare -r WRAPPER="fakechroot -- fakeroot"
 
-today=$(date +"%Y.%m.%d")
-declare -r DATE="$today"
-
 declare -r BUILDDIR="$1"
 declare -r OUTPUTDIR="$2"
+declare -r IMAGE_VERSION="$3"
 
 mkdir -vp "$BUILDDIR/alpm-hooks/usr/share/libalpm/hooks"
 find /usr/share/libalpm/hooks -exec ln -sf /dev/null "$BUILDDIR/alpm-hooks"{} \;
@@ -43,9 +41,9 @@ fakeroot -- \
         --exclude-from=exclude \
         -C "$BUILDDIR" \
         -c . \
-        -f "$OUTPUTDIR/archlinux-$DATE.tar"
+        -f "$OUTPUTDIR/archlinux-$IMAGE_VERSION.tar"
 
 cd "$OUTPUTDIR"
-zstd --rm --long -T0 -8 "archlinux-$DATE.tar"
-mv -v "archlinux-$DATE.tar.zst" "archlinux-$DATE.wsl"
-sha256sum "archlinux-$DATE.wsl" > "archlinux-$DATE.wsl.SHA256"
+zstd --rm --long -T0 -8 "archlinux-$IMAGE_VERSION.tar"
+mv -v "archlinux-$IMAGE_VERSION.tar.zst" "archlinux-$IMAGE_VERSION.wsl"
+sha256sum "archlinux-$IMAGE_VERSION.wsl" > "archlinux-$IMAGE_VERSION.wsl.SHA256"
