@@ -76,10 +76,10 @@ make-build:
     - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot cosign
   script:
     - make build IMAGE_VERSION="${IMAGE_VERSION}"
-    - cosign sign-blob output/archlinux-${IMAGE_VERSION}.wsl --bundle output/archlinux-${IMAGE_VERSION}.wsl.sig
+    - cosign sign-blob workdir/output/archlinux-${IMAGE_VERSION}.wsl --bundle workdir/output/archlinux-${IMAGE_VERSION}.wsl.sig
   artifacts:
     paths:
-      - output/*
+      - workdir/output/*
     expire_in: 1h
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -96,11 +96,11 @@ upload-image-to-package-registry:
   script:
     - | 
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl"
-      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl" "${PACKAGE_REGISTRY_URL}/"
+      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "workdir/output/archlinux-${IMAGE_VERSION}.wsl" "${PACKAGE_REGISTRY_URL}/"
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl.SHA256"
-      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl.SHA256" "${PACKAGE_REGISTRY_URL}/"
+      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "workdir/output/archlinux-${IMAGE_VERSION}.wsl.SHA256" "${PACKAGE_REGISTRY_URL}/"
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl.sig"
-      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "output/archlinux-${IMAGE_VERSION}.wsl.sig" "${PACKAGE_REGISTRY_URL}/"
+      curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "workdir/output/archlinux-${IMAGE_VERSION}.wsl.sig" "${PACKAGE_REGISTRY_URL}/"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 

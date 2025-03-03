@@ -1,11 +1,9 @@
-BUILDDIR ?= $(shell pwd)/build
-OUTPUTDIR ?= $(shell pwd)/output
-IMAGE_VERSION ?= $(shell date +"%Y.%m.%d")
+WORKDIR=$(shell pwd)/workdir
+IMAGE_VERSION=$(shell date +"%Y.%m.%d")
 
 .PHONY: build clean
 
 build: 
-	./make-image.sh $(BUILDDIR) $(OUTPUTDIR) $(IMAGE_VERSION)
+	./make-image.sh $(WORKDIR) $(IMAGE_VERSION)
 clean:
-	rm -rf $(BUILDDIR) $(OUTPUTDIR)
-	rm -f pacman.conf
+	rm -rf $(WORKDIR)

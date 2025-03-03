@@ -72,8 +72,8 @@ Install the following Arch Linux packages:
 
 ### Usage
 
-Run `make` to build a new image (which can be then found in the `output` directory).  
-Optionally, run `make clean` to remove every directories, files & artifacts generated during build (including the built image itself).
+Run `make` to build a new image (which can be then found in the `workdir/output` directory).  
+Optionally, run `make clean` afterwards to remove every directories, files & artifacts generated during build (including the built image itself).
 
 ## Known issues
 
