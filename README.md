@@ -81,12 +81,11 @@ However, there are known pending issues that may require additional actions for 
 
 #### systemd-firstboot.service hanging
 
-The `systemd-firstboot.service` job [hangs at first boot](https://github.com/yuk7/ArchWSL/issues/356#issuecomment-2039008495), preventing any other systemd services to start.
+The `systemd-firstboot.service` job hangs at first boot, preventing any other systemd services to start.
 
-A workaround is to cancel it by running `systemctl cancel "$(systemctl list-jobs | grep systemd-firstboot.service | awk '{print $1}')"`.  
-This is automatically done by the [first-setup script](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/blob/main/rootfs/usr/lib/wsl/first-setup.sh?ref_type=heads) when running the image for the first time.
+While waiting for the actual root cause of this issue (and a proper fix for it) to be identified, a workaround is automatically applied by the [first-setup script](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/blob/main/rootfs/usr/lib/wsl/first-setup.sh?ref_type=heads) when running the image for the first time, so you shouldn't have to do anything on that front.
 
-The actual root cause of this issue (and the eventual proper fix for it) is not known yet.
+See <https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues/3> for more details.
 
 #### systemd requires plain cgroup v2 support
 
