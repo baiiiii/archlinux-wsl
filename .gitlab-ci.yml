@@ -35,17 +35,26 @@ shellcheck:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
-make-clean:
+.make-clean:
   stage: clean
   before_script:
     - pacman -Syu --needed --noconfirm make
   script:
     - make clean
+
+make-clean:
+  extends: .make-clean
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+make-clean:secure:
+  extends: .make-clean
+  tags:
+    - secure
+  rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-set-variables:
+.set-variables:
   stage: vars
   script:
   - |
@@ -56,17 +65,21 @@ set-variables:
   artifacts:
     reports:
       dotenv: variables.env
+
+set-variables:
+  extends: .set-variables
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+set-variables:secure:
+  extends: .set-variables
+  tags:
+    - secure
+  rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-make-build:
+.make-build:
   stage: build
-  needs:
-    - make-clean
-    - set-variables
-  dependencies:
-    - set-variables
   variables:
     COSIGN_YES: "true"
   id_tokens:
@@ -81,18 +94,39 @@ make-build:
     paths:
       - workdir/output/*
     expire_in: 1h
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-upload-image-to-package-registry:
-  stage: release
+make-build:
+  extends: .make-build
   needs:
-    - make-build
+    - make-clean
     - set-variables
   dependencies:
-    - make-build
     - set-variables
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+make-build:secure:
+  extends: .make-build
+  tags:
+    - secure
+  needs:
+    - make-clean:secure
+    - set-variables:secure
+  dependencies:
+    - set-variables:secure
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+upload-artifacts-to-package-registry:
+  stage: release
+  tags:
+    - secure
+  needs:
+    - make-build:secure
+    - set-variables:secure
+  dependencies:
+    - make-build:secure
+    - set-variables:secure
   script:
     - | 
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl"
@@ -106,12 +140,14 @@ upload-image-to-package-registry:
 
 create-release:
   stage: release
+  tags:
+    - secure
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
-    - upload-image-to-package-registry
-    - set-variables
+    - upload-artifacts-to-package-registry
+    - set-variables:secure
   dependencies:
-    - set-variables
+    - set-variables:secure
   script:
     - echo "Creating ${IMAGE_VERSION} release"
   release:
