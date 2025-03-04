@@ -4,7 +4,7 @@
 
 Arch Linux provides a WSL image.
 
-Images are built & [released](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases) monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/pipeline_schedules)) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL (including `systemd` support).
+Images are built & released monthly (via [GitLab CI schedule](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/pipeline_schedules)) and aim to provide the simplest but complete system to offer an outright Arch Linux experience with WSL (including `systemd` support).
 
 While images are built regularly, it is strongly recommended running `pacman -Syu` right after the first launch due to the rolling release nature of Arch Linux.
 
