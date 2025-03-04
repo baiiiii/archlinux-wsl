@@ -19,13 +19,14 @@ See also the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_A
 
 ## Installation
 
-Note that WSL1 is **not** supported.
+From a Windows system with [WSL 2 installed](https://learn.microsoft.com/en-us/windows/wsl/install), use one of the following installation method.  
+Note that WSL 1 is **not** supported.
 
 ### Automated install
 
 **Warning:** This automated install method is a work in progress and is not yet functional!
 
-From a Windows system with WSL2 installed, run the following command in a PowerShell prompt:
+Run the following command in a PowerShell prompt:
 
 ```powershell
 wsl --install archlinux
@@ -37,13 +38,13 @@ You can then run Arch Linux in WSL via the `archlinux` application from the Star
 
 #### WSL 2.4.4 or greater
 
-Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
+Download the [latest Arch Linux ".wsl" image](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
 
 You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.
 
 #### WSL prior to 2.4.4
 
-Download the Arch Linux ".wsl" image from [the latest release](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and run the following command in a PowerShell prompt:
+Download the [latest Arch Linux ".wsl" image](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and run the following command in a PowerShell prompt:
 
 ```powershell
 wsl --import <Distro name> <Install location> <WSL image>
@@ -93,9 +94,9 @@ See <https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues/3> for more d
 
 #### systemd requires plain cgroup v2 support
 
-Currently, WSL2 starts systems [with cgroup v1 support by default](https://github.com/microsoft/WSL/issues/11857) but `systemd` >= 256 [dropped support for it](https://github.com/systemd/systemd/releases/tag/v256) and requires plain cgroup v2 support.
+Currently, WSL starts systems [with cgroup v1 support by default](https://github.com/microsoft/WSL/issues/11857) but `systemd` >= 256 [dropped support for it](https://github.com/systemd/systemd/releases/tag/v256) and requires plain cgroup v2 support.
 
-While waiting for WSL2 to start systems with plain cgroup v2 support by default, you can force it by disabling cgroup v1 support in the `%USERPROFILE%/.wslconfig` file on your Windows system (create it if it doesn't exists) with the following content:
+While waiting for WSL to start systems with plain cgroup v2 support by default, you can force it by disabling cgroup v1 support in the `%USERPROFILE%/.wslconfig` file on your Windows system (create it if it doesn't exists) with the following content:
 
 ```text
 [wsl2]
