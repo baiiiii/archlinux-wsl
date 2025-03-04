@@ -19,7 +19,7 @@ See also the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_A
 
 ## Installation
 
-From a Windows system with [WSL 2 installed](https://learn.microsoft.com/en-us/windows/wsl/install), use one of the following installation method.  
+From a Windows system with [WSL 2 installed](https://learn.microsoft.com/en-us/windows/wsl/install), use one of the following installation methods.  
 Note that WSL 1 is **not** supported.
 
 ### Automated install
