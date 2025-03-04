@@ -19,6 +19,8 @@ See also the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_A
 
 ## Installation
 
+Note that WSL1 is **not** supported.
+
 ### Automated install
 
 **Warning:** This automated install method is a work in progress and is not yet functional!

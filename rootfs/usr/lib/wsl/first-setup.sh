@@ -10,6 +10,8 @@ It provides systemd support.
 However, there are known pending issues that may require additional actions for systemd to work properly.
 See https://gitlab.archlinux.org/archlinux/archlinux-wsl#known-issues for more details.
 
+Note that WSL1 is not supported.
+
 Please, report bugs at https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues.
 See also the related Arch Wiki page at https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL.
 
