@@ -11,6 +11,7 @@ However, there are known pending issues that may require additional actions for 
 See https://gitlab.archlinux.org/archlinux/archlinux-wsl#known-issues for more details.
 
 Please, report bugs at https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues.
+See also the related Arch Wiki page at https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL.
 
 While images are built regularly, it is strongly recommended running "pacman -Syu" right after the first launch due to the rolling release nature of Arch Linux.
 EOF

@@ -15,6 +15,8 @@ An image can be verified with the following command:
 cosign verify-blob archlinux-2025.04.01.121271.wsl --bundle archlinux-2025.04.01.121271.wsl.bundle --certificate-identity "https://gitlab.archlinux.org/archlinux/archlinux-wsl//.gitlab-ci.yml@refs/heads/main" --certificate-oidc-issuer "https://gitlab.archlinux.org"
 ```
 
+See also the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL).
+
 ## Installation
 
 ### Automated install
