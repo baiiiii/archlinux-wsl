@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-declare -r WRAPPER="fakechroot -- fakeroot"
-
 declare -r WORKDIR="$1"
 declare -r BUILDDIR="$WORKDIR/build"
 declare -r OUTPUTDIR="$WORKDIR/output"
@@ -20,19 +18,19 @@ sed 's/Include = /&rootfs/g' < "$BUILDDIR/etc/pacman.conf" > "$WORKDIR/pacman.co
 cp --recursive --preserve=timestamps rootfs/* "$BUILDDIR/"
 ln -sf /usr/lib/os-release "$BUILDDIR/etc/os-release"
 
-$WRAPPER -- \
+fakechroot -- fakeroot -- \
     pacman -Sy -r "$BUILDDIR" \
         --noconfirm --dbpath "$BUILDDIR/var/lib/pacman" \
         --config "$WORKDIR/pacman.conf" \
         --noscriptlet \
         --hookdir "$BUILDDIR/alpm-hooks/usr/share/libalpm/hooks/" base
 
-$WRAPPER -- chroot "$BUILDDIR" update-ca-trust
-$WRAPPER -- chroot "$BUILDDIR" pacman-key --init
-$WRAPPER -- chroot "$BUILDDIR" pacman-key --populate
-$WRAPPER -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
+fakechroot -- fakeroot -- chroot "$BUILDDIR" update-ca-trust
+fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --init
+fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --populate
+fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
 
-# fakeroot to map the gid/uid of the builder process to root
+# Use fakeroot to map the gid / uid of the builder process to root
 # See https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/22
 fakeroot -- \
     tar \

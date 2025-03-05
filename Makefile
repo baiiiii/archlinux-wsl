@@ -5,5 +5,6 @@ IMAGE_VERSION ?= $(shell date +"%Y.%m.%d")
 
 build: 
 	scripts/build-image.sh $(WORKDIR) $(IMAGE_VERSION)
+
 clean:
 	rm -rf $(WORKDIR)

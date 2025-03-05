@@ -10,6 +10,8 @@ stages:
 
 codespell:
   stage: lint
+  tags:
+    - docker
   before_script:
     - pacman -Syu --needed --noconfirm codespell
   script:
@@ -19,6 +21,8 @@ codespell:
 
 markdownlint:
   stage: lint
+  tags:
+    - docker
   before_script:
     - pacman -Syu --needed --noconfirm markdownlint
   script:
@@ -28,6 +32,8 @@ markdownlint:
 
 shellcheck:
   stage: lint
+  tags:
+    - docker
   before_script:
     - pacman -Syu --needed --noconfirm shellcheck
   script:
@@ -44,12 +50,15 @@ shellcheck:
 
 make-clean:
   extends: .make-clean
+  tags:
+    - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 make-clean:secure:
   extends: .make-clean
   tags:
+    - docker
     - secure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -57,23 +66,24 @@ make-clean:secure:
 .set-variables:
   stage: vars
   script:
-  - |
-    export IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
-    export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
-    echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
-    echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
+    - |
+      echo "IMAGE_VERSION=$(date +'%Y.%m.%d').${CI_PIPELINE_ID}" > variables.env
+      echo "PACKAGE_REGISTRY_URL=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}" >> variables.env
   artifacts:
     reports:
       dotenv: variables.env
 
 set-variables:
   extends: .set-variables
+  tags:
+    - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 set-variables:secure:
   extends: .set-variables
   tags:
+    - docker
     - secure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -89,7 +99,7 @@ set-variables:secure:
     - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot cosign
   script:
     - make build IMAGE_VERSION="${IMAGE_VERSION}"
-    - cosign sign-blob workdir/output/archlinux-${IMAGE_VERSION}.wsl --bundle workdir/output/archlinux-${IMAGE_VERSION}.wsl.bundle
+    - cosign sign-blob "workdir/output/archlinux-${IMAGE_VERSION}.wsl" --bundle "workdir/output/archlinux-${IMAGE_VERSION}.wsl.bundle"
   artifacts:
     paths:
       - workdir/output/*
@@ -97,6 +107,8 @@ set-variables:secure:
 
 make-build:
   extends: .make-build
+  tags:
+    - docker
   needs:
     - make-clean
     - set-variables
@@ -108,6 +120,7 @@ make-build:
 make-build:secure:
   extends: .make-build
   tags:
+    - docker
     - secure
   needs:
     - make-clean:secure
@@ -120,6 +133,7 @@ make-build:secure:
 upload-artifacts-to-package-registry:
   stage: release
   tags:
+    - docker
     - secure
   needs:
     - make-build:secure
@@ -141,6 +155,7 @@ upload-artifacts-to-package-registry:
 create-release:
   stage: release
   tags:
+    - docker
     - secure
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
