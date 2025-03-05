@@ -45,6 +45,6 @@ fakeroot -- \
         -f "$OUTPUTDIR/archlinux-$IMAGE_VERSION.tar"
 
 cd "$OUTPUTDIR"
-zstd --rm --long -T0 -8 "archlinux-$IMAGE_VERSION.tar"
+zstd --long -T0 -8 "archlinux-$IMAGE_VERSION.tar"
 mv -v "archlinux-$IMAGE_VERSION.tar.zst" "archlinux-$IMAGE_VERSION.wsl"
 sha256sum "archlinux-$IMAGE_VERSION.wsl" > "archlinux-$IMAGE_VERSION.wsl.SHA256"
