@@ -39,7 +39,7 @@ fakeroot -- \
         --numeric-owner \
         --xattrs \
         --acls \
-        --exclude-from=exclude \
+        --exclude-from=scripts/exclude \
         -C "$BUILDDIR" \
         -c . \
         -f "$OUTPUTDIR/archlinux-$IMAGE_VERSION.tar"
