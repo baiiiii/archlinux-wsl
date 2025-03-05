@@ -1,5 +1,5 @@
 WORKDIR=$(shell pwd)/workdir
-IMAGE_VERSION=$(shell date +"%Y.%m.%d")
+IMAGE_VERSION ?= $(shell date +"%Y.%m.%d")
 
 .PHONY: build clean
 
