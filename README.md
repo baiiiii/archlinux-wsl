@@ -75,9 +75,8 @@ Install the following Arch Linux packages:
 ### Usage
 
 Run `make` to build a new image (which can be then found in the `workdir/output` directory).  
-You can customize the version ID for the image via the `IMAGE_VERSION` variable (defaults to the current date in the format "YEAR-MONTH-DAY"): `make IMAGE_VERSION="1.0.0"`.
 
-Optionally, run `make clean` afterwards to remove every directories, files & artifacts generated during build (including the built image itself).
+You can optionally customize the version ID for the image via the `IMAGE_VERSION` variable (defaults to the current date in the format "YEAR-MONTH-DAY"): `make IMAGE_VERSION="1.0.0"`.
 
 ## Known issues
 
