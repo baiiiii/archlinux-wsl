@@ -15,7 +15,7 @@ An image can be verified with the following command:
 cosign verify-blob archlinux-2025.04.01.121271.wsl --bundle archlinux-2025.04.01.121271.wsl.bundle --certificate-identity "https://gitlab.archlinux.org/archlinux/archlinux-wsl//.gitlab-ci.yml@refs/heads/main" --certificate-oidc-issuer "https://gitlab.archlinux.org"
 ```
 
-See also the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL).
+For more information about this WSL image and its usage (including "tips and tricks" and troubleshooting steps), see the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL).
 
 ## Installation
 
@@ -77,29 +77,3 @@ Install the following Arch Linux packages:
 Run `make` to build a new image (which can be then found in the `workdir/output` directory).  
 
 You can optionally customize the version ID for the image via the `IMAGE_VERSION` variable (defaults to the current date in the format "YEAR-MONTH-DAY"): `make IMAGE_VERSION="1.0.0"`.
-
-## Known issues
-
-### systemd support
-
-This Arch Linux WSL image provides `systemd` support.  
-However, there are known pending issues that may require additional actions for `systemd` to work properly:
-
-#### systemd-firstboot.service hanging
-
-The `systemd-firstboot.service` job hangs at first boot, preventing any other systemd services to start.
-
-While waiting for the actual root cause of this issue (and a proper fix for it) to be identified, a workaround is automatically applied by the [first-setup script](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/blob/main/rootfs/usr/lib/wsl/first-setup.sh?ref_type=heads) when running the image for the first time, so you shouldn't have to do anything on that front.
-
-See <https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues/3> for more details.
-
-#### systemd requires plain cgroup v2 support
-
-Currently, WSL starts systems [with cgroup v1 support by default](https://github.com/microsoft/WSL/issues/11857) but `systemd` >= 256 [dropped support for it](https://github.com/systemd/systemd/releases/tag/v256) and requires plain cgroup v2 support.
-
-While waiting for WSL to start systems with plain cgroup v2 support by default, you can force it by disabling cgroup v1 support in the `%USERPROFILE%/.wslconfig` file on your Windows system (create it if it doesn't exists) with the following content:
-
-```text
-[wsl2]
-kernelCommandLine = cgroup_no_v1=all systemd.unified_cgroup_hierarchy=1
-```

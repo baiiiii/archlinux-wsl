@@ -4,16 +4,16 @@
 cat <<EOF
 Welcome to the Arch Linux WSL image!
 
-This image is maintained at https://gitlab.archlinux.org/archlinux/archlinux-wsl.
+This image is maintained at <https://gitlab.archlinux.org/archlinux/archlinux-wsl>.
 
 It provides systemd support.
 However, there are known pending issues that may require additional actions for systemd to work properly.
-See https://gitlab.archlinux.org/archlinux/archlinux-wsl#known-issues for more details.
+See <https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL#systemd_support> for more details.
 
+Please, report bugs at <https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues>.
 Note that WSL 1 is not supported.
 
-Please, report bugs at https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/issues.
-See also the related Arch Wiki page at https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL.
+For more information about this WSL image and its usage (including "tips and tricks" and troubleshooting steps), see the related Arch Wiki page at <https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL>.
 
 While images are built regularly, it is strongly recommended running "pacman -Syu" right after the first launch due to the rolling release nature of Arch Linux.
 EOF
