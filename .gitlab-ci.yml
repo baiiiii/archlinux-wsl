@@ -6,6 +6,7 @@ stages:
   - clean
   - vars
   - build
+  - pre-release
   - release
 
 codespell:
@@ -133,8 +134,8 @@ make-build:secure:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-upload-artifacts-to-package-registry:
-  stage: release
+upload-artifacts:
+  stage: pre-release
   tags:
     - docker
     - secure
@@ -162,7 +163,7 @@ create-release:
     - secure
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
-    - upload-artifacts-to-package-registry
+    - upload-artifacts
     - set-variables:secure
   dependencies:
     - set-variables:secure
