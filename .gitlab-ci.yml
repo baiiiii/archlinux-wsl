@@ -6,6 +6,7 @@ stages:
   - clean
   - vars
   - build
+  - test
   - pre-release
   - release
 
@@ -106,7 +107,7 @@ set-variables:secure:
     - cosign sign-blob "workdir/output/archlinux-${IMAGE_VERSION}.wsl" --bundle "workdir/output/archlinux-${IMAGE_VERSION}.wsl.bundle"
   artifacts:
     paths:
-      - workdir/output/*
+      - workdir/*
     expire_in: 1h
 
 make-build:
@@ -130,6 +131,40 @@ make-build:secure:
     - make-clean:secure
     - set-variables:secure
   dependencies:
+    - set-variables:secure
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+.make-test:
+  stage: test
+  before_script:
+    - pacman -Syu --needed --noconfirm make fakechroot fakeroot git python
+  script:
+    - make test IMAGE_VERSION="${IMAGE_VERSION}"
+
+make-test:
+  extends: .make-test
+  tags:
+    - docker
+  needs:
+    - make-build
+    - set-variables
+  dependencies:
+    - make-build
+    - set-variables
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+make-test:secure:
+  extends: .make-test
+  tags:
+    - docker
+    - secure
+  needs:
+    - make-build:secure
+    - set-variables:secure
+  dependencies:
+    - make-build:secure
     - set-variables:secure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
