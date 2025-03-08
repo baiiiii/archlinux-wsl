@@ -20,7 +20,11 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" id -u http
 fakechroot -- fakeroot -- chroot "$BUILDDIR" locale | grep -q UTF-8
 
 # Run Microsoft's WSL image validation script: https://github.com/microsoft/WSL/blob/master/distributions/validate-modern.py
-git clone https://github.com/microsoft/WSL.git "$CLONEDIR"
+if [ -d "$CLONEDIR" ]; then
+	git -C "$CLONEDIR" pull https://github.com/microsoft/WSL.git 
+else
+	git clone https://github.com/microsoft/WSL.git "$CLONEDIR"
+fi
 python -m venv "$VENVDIR"
 export PATH="$VENVDIR/bin:$PATH"
 pip install -r "$CLONEDIR/distributions/requirements.txt"
