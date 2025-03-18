@@ -138,9 +138,12 @@ make-build:secure:
 .make-test:
   stage: test
   before_script:
-    - pacman -Syu --needed --noconfirm make fakechroot fakeroot git python
+    - pacman -Syu --needed --noconfirm make fakechroot fakeroot git python cosign
   script:
     - make test IMAGE_VERSION="${IMAGE_VERSION}"
+    - cd workdir/output/
+    - sha256sum --check "archlinux-${IMAGE_VERSION}.wsl.SHA256"
+    - cosign verify-blob archlinux-${IMAGE_VERSION}.wsl --bundle archlinux-${IMAGE_VERSION}.wsl.bundle --certificate-identity "${CI_PROJECT_URL}//.gitlab-ci.yml@refs/heads/${CI_COMMIT_REF_NAME}" --certificate-oidc-issuer "https://gitlab.archlinux.org"
 
 make-test:
   extends: .make-test
