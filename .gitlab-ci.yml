@@ -3,8 +3,8 @@ default:
 
 stages:
   - lint
-  - clean
   - vars
+  - clean
   - build
   - test
   - pre-release
@@ -46,6 +46,33 @@ shellcheck:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
+.set-variables:
+  stage: vars
+  script:
+    - |
+      export IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
+      export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
+      echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
+      echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+
+set-variables:
+  extends: .set-variables
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+set-variables:secure:
+  extends: .set-variables
+  tags:
+    - docker
+    - secure
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
 .make-clean:
   stage: clean
   before_script:
@@ -62,31 +89,6 @@ make-clean:
 
 make-clean:secure:
   extends: .make-clean
-  tags:
-    - docker
-    - secure
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
-.set-variables:
-  stage: vars
-  script:
-    - |
-      echo "IMAGE_VERSION=$(date +'%Y.%m.%d').${CI_PIPELINE_ID}" > variables.env
-      echo "PACKAGE_REGISTRY_URL=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}" >> variables.env
-  artifacts:
-    reports:
-      dotenv: variables.env
-
-set-variables:
-  extends: .set-variables
-  tags:
-    - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
-set-variables:secure:
-  extends: .set-variables
   tags:
     - docker
     - secure
@@ -179,6 +181,7 @@ upload-artifacts:
     - secure
   needs:
     - make-build:secure
+    - make-test:secure
     - set-variables:secure
   dependencies:
     - make-build:secure
