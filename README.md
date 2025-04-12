@@ -38,7 +38,7 @@ You can then run Arch Linux in WSL via the `archlinux` application from the Star
 
 #### WSL 2.4.4 or greater
 
-Download the [latest Arch Linux ".wsl" image](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/releases/permalink/latest) and double-click on it to start the installation.
+Download the [latest Arch Linux ".wsl" image](https://geo.mirror.pkgbuild.com/wsl/latest) and double-click on it to start the installation.
 
 You can then run Arch Linux in WSL via the `archlinux` application from the Start menu, or by running `wsl -d archlinux` in a PowerShell prompt.
 
