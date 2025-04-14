@@ -28,4 +28,4 @@ fi
 python -m venv "$VENVDIR"
 export PATH="$VENVDIR/bin:$PATH"
 pip install -r "$CLONEDIR/distributions/requirements.txt"
-python "$CLONEDIR/distributions/validate-modern.py" --tar "$OUTPUTDIR/archlinux-$IMAGE_VERSION.tar"
+python "$CLONEDIR/distributions/validate-modern.py" --tar "$OUTPUTDIR/archlinux-$IMAGE_VERSION.wsl"
