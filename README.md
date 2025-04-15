@@ -24,8 +24,6 @@ Note that WSL 1 is **not** supported.
 
 ### Automated install
 
-**Warning:** This automated install method is a work in progress and is not yet functional!
-
 Run the following command in a PowerShell prompt:
 
 ```powershell
