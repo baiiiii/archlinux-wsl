@@ -7,8 +7,8 @@ stages:
   - clean
   - build
   - test
-  - pre-release
   - release
+  - cleanup
 
 codespell:
   stage: lint
@@ -175,7 +175,7 @@ make-test:secure:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 upload-artifacts:
-  stage: pre-release
+  stage: release
   tags:
     - docker
     - secure
@@ -197,30 +197,19 @@ upload-artifacts:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-create-release:
-  stage: release
+cleanup:
+  stage: cleanup
   tags:
     - docker
     - secure
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
     - upload-artifacts
-    - set-variables:secure
-  dependencies:
-    - set-variables:secure
+  before_script:
+    - pacman -Syu --needed --noconfirm jq
   script:
-    - echo "Creating ${IMAGE_VERSION} release"
-  release:
-    name: "Release ${IMAGE_VERSION}"
-    description: "Release ${IMAGE_VERSION}"
-    tag_name: "${IMAGE_VERSION}"
-    assets:
-      links:
-        - name: "archlinux-${IMAGE_VERSION}.wsl"
-          url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl"
-        - name: "archlinux-${IMAGE_VERSION}.wsl.SHA256"
-          url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl.SHA256"
-        - name: "archlinux-${IMAGE_VERSION}.wsl.bundle"
-          url: "${PACKAGE_REGISTRY_URL}/archlinux-${IMAGE_VERSION}.wsl.bundle"
+    - |
+      for id in $(curl --silent --fail --show-error "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?per_page=100&order_by=created_at&sort=asc" | jq '.[] | select(.created_at | split("T")[0] | . < (now-60*60*24*90|strflocaltime("%Y-%m-%d"))) | .id'); do
+        curl --silent --fail --show-error --request DELETE --header "PRIVATE-TOKEN: ${GITLAB_PROJECT_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${id}"
+      done
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
