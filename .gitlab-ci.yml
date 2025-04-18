@@ -119,8 +119,6 @@ make-build:
   needs:
     - make-clean
     - set-variables
-  dependencies:
-    - set-variables
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
@@ -131,8 +129,6 @@ make-build:secure:
     - secure
   needs:
     - make-clean:secure
-    - set-variables:secure
-  dependencies:
     - set-variables:secure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -154,9 +150,6 @@ make-test:
   needs:
     - make-build
     - set-variables
-  dependencies:
-    - make-build
-    - set-variables
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
@@ -166,9 +159,6 @@ make-test:secure:
     - docker
     - secure
   needs:
-    - make-build:secure
-    - set-variables:secure
-  dependencies:
     - make-build:secure
     - set-variables:secure
   rules:
@@ -182,9 +172,6 @@ upload-artifacts:
   needs:
     - make-build:secure
     - make-test:secure
-    - set-variables:secure
-  dependencies:
-    - make-build:secure
     - set-variables:secure
   script:
     - | 
