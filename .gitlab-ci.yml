@@ -50,10 +50,12 @@ shellcheck:
   stage: vars
   script:
     - |
-      export IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
-      export PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
+      IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
+      PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
+      GEO_MIRROR_URL="https://geo.mirror.pkgbuild.com/wsl/${IMAGE_VERSION}"
       echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
       echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
+      echo "GEO_MIRROR_URL=${GEO_MIRROR_URL}" >> variables.env
   artifacts:
     reports:
       dotenv: variables.env
@@ -184,13 +186,61 @@ upload-artifacts:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-cleanup:
-  stage: cleanup
+publish-WSL:
+  stage: release
   tags:
     - docker
     - secure
   needs:
     - upload-artifacts
+    - set-variables:secure
+  before_script:
+    - pacman -Syu --needed --noconfirm git github-cli jq
+    - git config --global user.email "github@archlinux.org"
+    - git config --global user.name "Arch Linux Technical User"
+    - gh auth status
+    - curl -sSf --head "${GEO_MIRROR_URL}/archlinux-${IMAGE_VERSION}.wsl" || { echo "Latest image version not synced to geo mirror"; exit 1; }
+    - IMAGE_CHECKSUM=$(curl -sf "${GEO_MIRROR_URL}/archlinux-${IMAGE_VERSION}.wsl.SHA256" | awk '{print $1} END {if ($1=="") exit 1}')
+  script:
+    - echo "Update the WSL GitHub repo"
+    - mkdir WSL
+    - cd WSL
+    - git init
+    - git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/archlinux/WSL.git"
+    - git fetch https://github.com/microsoft/WSL.git
+    - git reset --hard FETCH_HEAD
+    - head="release/${IMAGE_VERSION}"
+    - git switch -c "$head"
+    - jq --indent 4
+        '.ModernDistributions.archlinux[0].Amd64Url.Url = "'${GEO_MIRROR_URL}'/archlinux-'${IMAGE_VERSION}'.wsl" |
+         .ModernDistributions.archlinux[0].Amd64Url.Sha256 = "'${IMAGE_CHECKSUM}'"'
+        distributions/DistributionInfo.json > /tmp/DistributionInfo.json
+    - mv -f /tmp/DistributionInfo.json distributions/DistributionInfo.json
+    - git diff
+    - git add distributions/DistributionInfo.json
+    - 'git commit
+        -m "archlinux: Release ${IMAGE_VERSION}"
+        -m "This is an automated release [1]."
+        -m "[1] ${CI_PROJECT_URL}/-/blob/${CI_DEFAULT_BRANCH}/.gitlab-ci.yml"'
+    - git push -u origin "$head"
+    - 'gh pr create
+        --repo microsoft/WSL
+        --title "$(git show --no-patch --format="%s")"
+        --body "$(printf "%s\n\n---\n\nMaintainer: @Antiz96\n" "$(git show --no-patch --format="%b")")"
+        --base master
+        --head archlinux:"$head"'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: delayed
+      start_in: 2 hours
+
+cleanup-pkg-registry:
+  stage: cleanup
+  tags:
+    - docker
+    - secure
+  needs:
+    - publish-WSL
   before_script:
     - pacman -Syu --needed --noconfirm jq
   script:
