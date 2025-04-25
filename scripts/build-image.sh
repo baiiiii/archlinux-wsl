@@ -29,6 +29,7 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" update-ca-trust
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --init
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --populate
 fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
+fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask systemd-firstboot
 
 # Use fakeroot to map the gid / uid of the builder process to root
 # See https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/22
