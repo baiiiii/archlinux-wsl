@@ -9,6 +9,7 @@ stages:
   - test
   - release
   - cleanup
+  - report
 
 codespell:
   stage: lint
@@ -250,3 +251,14 @@ cleanup-pkg-registry:
       done
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+issue-bot:
+  stage: report
+  tags:
+    - secure
+    - docker
+  image: registry.gitlab.com/gitlab-org/distribution/issue-bot:latest
+  script: /issue-bot
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      when: on_failure
