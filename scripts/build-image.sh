@@ -29,7 +29,13 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" update-ca-trust
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --init
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --populate
 fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
-fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask systemd-firstboot
+fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask systemd-firstboot console-getty
+
+# Disable getty template units to prevent service failures caused by shared Hyper-V TTY devices across WSL instances
+# See https://github.com/microsoft/WSL/issues/13595
+ln -sf /dev/null "$BUILDDIR/etc/systemd/system/getty@.service"
+ln -sf /dev/null "$BUILDDIR/etc/systemd/system/serial-getty@.service"
+
 
 # Use fakeroot to map the gid / uid of the builder process to root
 # See https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/22
