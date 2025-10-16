@@ -36,7 +36,6 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask systemd-fir
 ln -sf /dev/null "$BUILDDIR/etc/systemd/system/getty@.service"
 ln -sf /dev/null "$BUILDDIR/etc/systemd/system/serial-getty@.service"
 
-
 # Use fakeroot to map the gid / uid of the builder process to root
 # See https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/22
 fakeroot -- \
