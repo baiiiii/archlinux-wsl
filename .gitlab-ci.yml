@@ -227,7 +227,7 @@ publish-WSL:
     - 'gh pr create
         --repo microsoft/WSL
         --title "$(git show --no-patch --format="%s")"
-        --body "$(printf "%s\n\n---\n\nMaintainer: @Antiz96\n" "$(git show --no-patch --format="%b")")"
+        --body "$(printf "%s\n\n---\n\nMaintainers: @Antiz96 @mhegreberg\n" "$(git show --no-patch --format="%b")")"
         --base master
         --head archlinux:"$head"'
   rules:
