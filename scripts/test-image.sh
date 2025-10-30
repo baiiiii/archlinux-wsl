@@ -14,6 +14,8 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" test "$(wc -l /etc/group | awk '{pr
 fakechroot -- fakeroot -- chroot "$BUILDDIR" test "$(wc -l /etc/passwd | awk '{print $1}')" -gt 10
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Sy
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Qqk
+fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Syu --noconfirm arch-repro-status
+fakechroot -- fakeroot -- chroot "$BUILDDIR" arch-repro-status
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Syu --noconfirm podman grep
 fakechroot -- fakeroot -- chroot "$BUILDDIR" podman -v
 fakechroot -- fakeroot -- chroot "$BUILDDIR" id -u http
