@@ -53,7 +53,7 @@ shellcheck:
     - |
       IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
       PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
-      GEO_MIRROR_URL="https://geo.mirror.pkgbuild.com/wsl/${IMAGE_VERSION}"
+      GEO_MIRROR_URL="https://fastly.mirror.pkgbuild.com/wsl/${IMAGE_VERSION}"
       echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
       echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
       echo "GEO_MIRROR_URL=${GEO_MIRROR_URL}" >> variables.env
