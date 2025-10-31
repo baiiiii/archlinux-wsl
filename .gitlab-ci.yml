@@ -53,10 +53,10 @@ shellcheck:
     - |
       IMAGE_VERSION=$(date +'%Y.%m.%d')."${CI_PIPELINE_ID}"
       PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/image/${IMAGE_VERSION}"
-      GEO_MIRROR_URL="https://fastly.mirror.pkgbuild.com/wsl/${IMAGE_VERSION}"
+      FASTLY_MIRROR_URL="https://fastly.mirror.pkgbuild.com/wsl/${IMAGE_VERSION}"
       echo "IMAGE_VERSION=${IMAGE_VERSION}" > variables.env
       echo "PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL}" >> variables.env
-      echo "GEO_MIRROR_URL=${GEO_MIRROR_URL}" >> variables.env
+      echo "FASTLY_MIRROR_URL=${FASTLY_MIRROR_URL}" >> variables.env
   artifacts:
     reports:
       dotenv: variables.env
@@ -200,8 +200,8 @@ publish-WSL:
     - git config --global user.email "github@archlinux.org"
     - git config --global user.name "Arch Linux Technical User"
     - gh auth status
-    - curl -sSf --head "${GEO_MIRROR_URL}/archlinux-${IMAGE_VERSION}.wsl" || { echo "Latest image version not synced to geo mirror"; exit 1; }
-    - IMAGE_CHECKSUM=$(curl -sf "${GEO_MIRROR_URL}/archlinux-${IMAGE_VERSION}.wsl.SHA256" | awk '{print $1} END {if ($1=="") exit 1}')
+    - curl -sSf --head "${FASTLY_MIRROR_URL}/archlinux-${IMAGE_VERSION}.wsl" || { echo "Latest image version not synced to geo mirror"; exit 1; }
+    - IMAGE_CHECKSUM=$(curl -sf "${FASTLY_MIRROR_URL}/archlinux-${IMAGE_VERSION}.wsl.SHA256" | awk '{print $1} END {if ($1=="") exit 1}')
   script:
     - echo "Update the WSL GitHub repo"
     - mkdir WSL
@@ -213,7 +213,7 @@ publish-WSL:
     - head="release/${IMAGE_VERSION}"
     - git switch -c "$head"
     - jq --indent 4
-        '.ModernDistributions.archlinux[0].Amd64Url.Url = "'${GEO_MIRROR_URL}'/archlinux-'${IMAGE_VERSION}'.wsl" |
+        '.ModernDistributions.archlinux[0].Amd64Url.Url = "'${FASTLY_MIRROR_URL}'/archlinux-'${IMAGE_VERSION}'.wsl" |
          .ModernDistributions.archlinux[0].Amd64Url.Sha256 = "'${IMAGE_CHECKSUM}'"'
         distributions/DistributionInfo.json > /tmp/DistributionInfo.json
     - mv -f /tmp/DistributionInfo.json distributions/DistributionInfo.json
