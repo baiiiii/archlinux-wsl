@@ -6,6 +6,7 @@ stages:
   - vars
   - clean
   - build
+  - repro
   - test
   - release
   - cleanup
@@ -136,6 +137,45 @@ make-build:secure:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
+.make-repro:
+  stage: repro
+  variables:
+    COSIGN_YES: "true"
+  id_tokens:
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
+  before_script:
+    - pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot cosign diffoscope
+  script:
+    - make repro IMAGE_VERSION="${IMAGE_VERSION}"
+    - cosign sign-blob "repro/output/archlinux-${IMAGE_VERSION}.wsl" --bundle "repro/output/archlinux-${IMAGE_VERSION}.wsl.bundle"
+  artifacts:
+    paths:
+      - repro/*
+    expire_in: 1h
+  allow_failure: true
+
+make-repro:
+  extends: .make-repro
+  tags:
+    - docker
+  needs:
+    - make-build
+    - set-variables
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+make-repro:secure:
+  extends: .make-repro
+  tags:
+    - docker
+    - secure
+  needs:
+    - make-build:secure
+    - set-variables:secure
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
 .make-test:
   stage: test
   before_script:
@@ -152,6 +192,7 @@ make-test:
     - docker
   needs:
     - make-build
+    - make-repro
     - set-variables
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -163,6 +204,7 @@ make-test:secure:
     - secure
   needs:
     - make-build:secure
+    - make-repro:secure
     - set-variables:secure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'

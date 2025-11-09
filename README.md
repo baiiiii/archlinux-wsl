@@ -80,4 +80,4 @@ The following additional packages are required to run tests:
 Run `make` to build a new image (which can be then found in the `workdir/output` directory).  
 You can optionally customize the version ID for the image via the `IMAGE_VERSION` variable (defaults to the current date in the format "YEAR-MONTH-DAY"): `make IMAGE_VERSION="1.0.0"`.
 
-You can also run `make test` to execute a series of tests against the built image and `make clean` to delete every directories & files generated during build and tests (including the built image itself).
+You can also run `make repro` and `make test` to execute a series of tests against the built image (respectively for reproducibility and conformity of the built image) as well as `make clean` to delete every directories & files generated during build and tests (including the built image itself).
