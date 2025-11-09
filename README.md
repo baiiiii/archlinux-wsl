@@ -70,10 +70,11 @@ Install the following Arch Linux packages:
 - fakechroot
 - fakeroot
 
-The following additional packages are required to run tests:
+The following additional packages are required to run tests (see the "Usage" chapter below for details):
 
-- git
-- python
+- diffoscope (for `make repro`)
+- git (for `make test`)
+- python (for `make test`)
 
 ### Usage
 
