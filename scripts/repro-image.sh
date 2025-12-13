@@ -10,7 +10,7 @@ declare -r REPRO_OUTPUTDIR="$REPRO_WORKDIR/output"
 declare -r IMAGE_VERSION="$3"
 
 echo -e "\n-- Testing the userspace reproducibility --\n"
-fakechroot -- fakeroot -- chroot "$ORIG_BUILDDIR" pacman -Syu --noconfirm arch-repro-status
+fakechroot -- fakeroot -- chroot "$ORIG_BUILDDIR" pacman -Syu --disable-sandbox-filesystem --noconfirm arch-repro-status
 fakechroot -- fakeroot -- chroot "$ORIG_BUILDDIR" arch-repro-status
 
 echo -e "\n-- Testing the image reproducibility --\n"

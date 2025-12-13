@@ -12,9 +12,9 @@ declare -r IMAGE_VERSION="$2"
 # Run some tests / commands from the built rootfs
 fakechroot -- fakeroot -- chroot "$BUILDDIR" test "$(wc -l /etc/group | awk '{print $1}')" -gt 10
 fakechroot -- fakeroot -- chroot "$BUILDDIR" test "$(wc -l /etc/passwd | awk '{print $1}')" -gt 10
-fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Sy
+fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Sy --disable-sandbox-filesystem
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Qqk
-fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Syu --noconfirm podman grep
+fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman -Syu --disable-sandbox-filesystem --noconfirm podman grep
 fakechroot -- fakeroot -- chroot "$BUILDDIR" podman -v
 fakechroot -- fakeroot -- chroot "$BUILDDIR" id -u http
 fakechroot -- fakeroot -- chroot "$BUILDDIR" locale | grep -q UTF-8

@@ -19,7 +19,7 @@ cp --recursive --preserve=timestamps rootfs/* "$BUILDDIR/"
 ln -sf /usr/lib/os-release "$BUILDDIR/etc/os-release"
 
 fakechroot -- fakeroot -- \
-    pacman -Sy -r "$BUILDDIR" \
+    pacman -Sy --disable-sandbox-filesystem -r "$BUILDDIR" \
         --noconfirm --dbpath "$BUILDDIR/var/lib/pacman" \
         --config "$WORKDIR/pacman.conf" \
         --noscriptlet \
