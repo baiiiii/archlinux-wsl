@@ -21,8 +21,7 @@ codespell:
   script:
     - codespell --enable-colors
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: always
 
 markdownlint:
   stage: lint
@@ -33,8 +32,7 @@ markdownlint:
   script:
     - mdl --style .mdl_style.rb .
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: always
 
 shellcheck:
   stage: lint
@@ -45,8 +43,7 @@ shellcheck:
   script:
     - find . -name '*.sh*' -exec shellcheck --color=always {} +
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: always
 
 .set-variables:
   stage: vars
@@ -67,7 +64,7 @@ set-variables:
   tags:
     - docker
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
 
 set-variables:secure:
   extends: .set-variables
@@ -75,7 +72,7 @@ set-variables:secure:
     - docker
     - secure
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
 
 .make-clean:
   stage: clean
@@ -89,7 +86,7 @@ make-clean:
   tags:
     - docker
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
 
 make-clean:secure:
   extends: .make-clean
@@ -97,7 +94,7 @@ make-clean:secure:
     - docker
     - secure
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
 
 .make-build:
   stage: build
@@ -124,7 +121,7 @@ make-build:
     - make-clean
     - set-variables
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
 
 make-build:secure:
   extends: .make-build
@@ -135,7 +132,7 @@ make-build:secure:
     - make-clean:secure
     - set-variables:secure
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
 
 .make-repro:
   stage: repro
@@ -163,7 +160,7 @@ make-repro:
     - make-build
     - set-variables
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
 
 make-repro:secure:
   extends: .make-repro
@@ -174,7 +171,7 @@ make-repro:secure:
     - make-build:secure
     - set-variables:secure
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
 
 .make-test:
   stage: test
@@ -195,7 +192,7 @@ make-test:
     - make-repro
     - set-variables
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
 
 make-test:secure:
   extends: .make-test
@@ -207,7 +204,7 @@ make-test:secure:
     - make-repro:secure
     - set-variables:secure
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
 
 upload-artifacts:
   stage: release
@@ -227,7 +224,7 @@ upload-artifacts:
       echo "Uploading archlinux-${IMAGE_VERSION}.wsl.bundle"
       curl -sSf --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "workdir/output/archlinux-${IMAGE_VERSION}.wsl.bundle" "${PACKAGE_REGISTRY_URL}/"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $release == "true"'
 
 publish-WSL:
   stage: release
@@ -273,7 +270,7 @@ publish-WSL:
         --base master
         --head archlinux:"$head"'
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $release == "true"'
       when: delayed
       start_in: 2 hours
 
@@ -292,7 +289,7 @@ cleanup-pkg-registry:
         curl --silent --fail --show-error --request DELETE --header "PRIVATE-TOKEN: ${GITLAB_PROJECT_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${id}"
       done
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $release == "true"'
 
 issue-bot:
   stage: report
@@ -302,5 +299,5 @@ issue-bot:
   image: registry.gitlab.com/gitlab-org/distribution/issue-bot:latest
   script: /issue-bot
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
       when: on_failure
