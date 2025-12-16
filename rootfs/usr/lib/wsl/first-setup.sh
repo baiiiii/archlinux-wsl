@@ -15,4 +15,5 @@ While images are built regularly, it is strongly recommended running "pacman -Sy
 EOF
 
 # Generate pacman lsign key (see the "/!\/!\/!\ Note" at https://gitlab.archlinux.org/archlinux/archlinux-docker#principles)
-echo -e "\nGenerating pacman keys..." && pacman-key --init 2> /dev/null && echo "Done"
+echo -e "\nGenerating pacman keys..." && pacman-key --init &> /dev/null && echo "Done"
+echo -e "\nPopulating keyring..." && pacman-key --populate archlinux &> /dev/null && echo "Done"

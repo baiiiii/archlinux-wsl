@@ -79,6 +79,8 @@ The following additional packages are required to run tests (see the "Usage" cha
 ### Usage
 
 Run `make` to build a new image (which can be then found in the `workdir/output` directory).  
-You can optionally customize the version ID for the image via the `IMAGE_VERSION` variable (defaults to the current date in the format "YEAR.MONTH.DAY"): `make IMAGE_VERSION="1.0.0"`.
+The version ID of the built image is equal to the current date (in the format "YEAR.MONTH.DAY"). The image is built against [a snapshot of the Arch Linux repositories](https://wiki.archlinux.org/title/Arch_Linux_Archive) set at the day before the date of the image version (for [reproducible builds](https://reproducible-builds.org/) purposes).  
+You can specify the image version to a specific date (and therefore also influence the date of the Arch Linux repositories snapshot used for the build) via the `IMAGE_VERSION` variable: `make IMAGE_VERSION="YEAR.MONTH.DAY"`.  
+This is particularly useful to try to *reproduce* past images (in the "reproducible builds" sens).
 
 You can also run `make repro` and `make test` to execute a series of tests against the built image (respectively for reproducibility and conformity of the built image) as well as `make clean` to delete every directories & files generated during build and tests (including the built image itself).
