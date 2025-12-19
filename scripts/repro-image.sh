@@ -17,4 +17,6 @@ fakechroot -- fakeroot -- chroot "$ORIG_BUILDDIR" arch-repro-status
 
 echo -e "\n-- Testing the image reproducibility --\n"
 make build WORKDIR="$REPRO_WORKDIR"
+echo "The sha256 hash of the reproduced image is:"
+cat "$REPRO_OUTPUTDIR/archlinux-$IMAGE_VERSION.wsl.SHA256"
 diffoscope "$ORIG_OUTPUTDIR/archlinux-$IMAGE_VERSION.wsl" "$REPRO_OUTPUTDIR/archlinux-$IMAGE_VERSION.wsl" && echo -e "\nImage is reproducible!"
