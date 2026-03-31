@@ -147,7 +147,6 @@ make-build:secure:
     paths:
       - repro/*
     expire_in: 1h
-  allow_failure: true
 
 make-repro:
   extends: .make-repro
