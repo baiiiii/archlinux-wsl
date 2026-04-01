@@ -15,6 +15,8 @@ An image can be verified with the following command:
 cosign verify-blob archlinux-2025.04.01.121271.wsl --bundle archlinux-2025.04.01.121271.wsl.bundle --certificate-identity "https://gitlab.archlinux.org/archlinux/archlinux-wsl//.gitlab-ci.yml@refs/heads/main" --certificate-oidc-issuer "https://gitlab.archlinux.org"
 ```
 
+Images are [bit for bit reproducible](https://reproducible-builds.org/), see the instructions to reproduce an image locally in [REPRO.md](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/blob/main/REPRO.md)
+
 For more information about this WSL image and its usage (including "tips and tricks" and troubleshooting steps), see the related [Arch Wiki page](https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL).
 
 ## Installation
@@ -81,6 +83,6 @@ The following additional packages are required to run tests (see the "Usage" cha
 Run `make` to build a new image (which can be then found in the `workdir/output` directory).  
 The version ID of the built image is equal to the current date (in the format "YEAR.MONTH.DAY"). The image is built against [a snapshot of the Arch Linux repositories](https://wiki.archlinux.org/title/Arch_Linux_Archive) set at the day before the date of the image version (for [reproducible builds](https://reproducible-builds.org/) purposes).  
 You can specify the image version to a specific date (and therefore also influence the date of the Arch Linux repositories snapshot used for the build) via the `IMAGE_VERSION` variable: `make IMAGE_VERSION="YEAR.MONTH.DAY"`.  
-This is particularly useful to try to *reproduce* past images (in the "reproducible builds" sens).
+This is particularly useful to try to reproduce past images (in the sense of "[reproducible builds](https://reproducible-builds.org/)"), see instructions on how to do so from [REPRO.md](https://gitlab.archlinux.org/archlinux/archlinux-wsl/-/blob/main/REPRO.md)
 
 You can also run `make repro` and `make test` to execute a series of tests against the built image (respectively for reproducibility and conformity of the built image) as well as `make clean` to delete every directories & files generated during build and tests (including the built image itself).
