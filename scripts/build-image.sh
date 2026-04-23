@@ -6,8 +6,14 @@ declare -r WORKDIR="$1"
 declare -r BUILDDIR="$WORKDIR/build"
 declare -r OUTPUTDIR="$WORKDIR/output"
 declare -r IMAGE_VERSION="$2"
-declare -r ARCHIVE_SNAPSHOT="$3"
-declare -rx SOURCE_DATE_EPOCH="$4"
+ARCHIVE_SNAPSHOT=$(date -d "$(awk -F. '{print $1"-"$2"-"$3}' <<< "$IMAGE_VERSION") -1 day" +"%Y/%m/%d")
+readonly ARCHIVE_SNAPSHOT
+SOURCE_DATE_EPOCH=$(date -d "$(awk -F. '{print $1"-"$2"-"$3}' <<< "$IMAGE_VERSION")" +"%s")
+readonly SOURCE_DATE_EPOCH
+export SOURCE_DATE_EPOCH
+
+# For eventual debugging purposes
+echo -e "ARCHIVE_SNAPSHOT: ${ARCHIVE_SNAPSHOT}\nSOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}"
 
 mkdir -vp "$BUILDDIR/alpm-hooks/usr/share/libalpm/hooks"
 find /usr/share/libalpm/hooks -exec ln -sf /dev/null "$BUILDDIR/alpm-hooks"{} \;
@@ -21,7 +27,7 @@ cp --recursive --preserve=timestamps rootfs/* "$BUILDDIR/"
 ln -sf /usr/lib/os-release "$BUILDDIR/etc/os-release"
 
 # Use archived repo snapshot from archive.archlinux.org for reproducible builds
-sed -i "1iServer = https://archive.archlinux.org/repos/$ARCHIVE_SNAPSHOT/\\\$repo/os/\\\$arch" "$BUILDDIR/etc/pacman.d/mirrorlist"
+sed -i "1iServer = https://archive.archlinux.org/repos/$ARCHIVE_SNAPSHOT/\\\$repo/os/\\\$arch" rootfs/etc/pacman.d/mirrorlist
 
 fakechroot -- fakeroot -- \
     pacman -Sy --disable-sandbox-filesystem -r "$BUILDDIR" \
@@ -41,9 +47,6 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask systemd-fir
 # See https://github.com/microsoft/WSL/issues/13595
 ln -sf /dev/null "$BUILDDIR/etc/systemd/system/getty@.service"
 ln -sf /dev/null "$BUILDDIR/etc/systemd/system/serial-getty@.service"
-
-# Remove archived repo snapshot from the mirrorlist
-sed -i '1d' "$BUILDDIR/etc/pacman.d/mirrorlist"
 
 # Clear pacman keyring for reproducible builds
  rm -rf "$BUILDDIR"/etc/pacman.d/gnupg/*
