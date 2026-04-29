@@ -1,6 +1,9 @@
+# Fixed TZ to ensure consistency
+export TZ := UTC
+
 WORKDIR=$(shell pwd)/workdir
 REPRO_WORKDIR=$(shell pwd)/repro
-IMAGE_VERSION ?= $(shell date +"%Y.%m.%d")
+IMAGE_VERSION ?= $(shell date -u +"%Y.%m.%d")
 
 .PHONY: build test clean
 

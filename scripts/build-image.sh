@@ -2,13 +2,16 @@
 
 set -euo pipefail
 
+# Fixed TZ to ensure consistency
+export TZ=UTC
+
 declare -r WORKDIR="$1"
 declare -r BUILDDIR="$WORKDIR/build"
 declare -r OUTPUTDIR="$WORKDIR/output"
 declare -r IMAGE_VERSION="$2"
-ARCHIVE_SNAPSHOT=$(date -d "$(awk -F. '{print $1"-"$2"-"$3}' <<< "$IMAGE_VERSION") -1 day" +"%Y/%m/%d")
+ARCHIVE_SNAPSHOT=$(date -u -d "$(awk -F. '{print $1"-"$2"-"$3}' <<< "$IMAGE_VERSION") -1 day" +"%Y/%m/%d")
 readonly ARCHIVE_SNAPSHOT
-SOURCE_DATE_EPOCH=$(date -d "$(awk -F. '{print $1"-"$2"-"$3}' <<< "$IMAGE_VERSION")" +"%s")
+SOURCE_DATE_EPOCH=$(date -u -d "$(awk -F. '{print $1"-"$2"-"$3}' <<< "$IMAGE_VERSION")" +"%s")
 readonly SOURCE_DATE_EPOCH
 export SOURCE_DATE_EPOCH
 

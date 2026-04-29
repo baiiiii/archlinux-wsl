@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Fixed TZ to ensure consistency
+export TZ=UTC
+
 declare -r WORKDIR="$1"
 declare -r BUILDDIR="$WORKDIR/build"
 declare -r OUTPUTDIR="$WORKDIR/output"
