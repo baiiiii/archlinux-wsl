@@ -44,7 +44,13 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" update-ca-trust
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --init
 fakechroot -- fakeroot -- chroot "$BUILDDIR" pacman-key --populate
 fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemd-sysusers --root "/"
-fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask systemd-firstboot console-getty
+fakechroot -- fakeroot -- chroot "$BUILDDIR" /usr/bin/systemctl mask \
+	systemd-firstboot \
+	console-getty \
+	tmp.mount \
+	systemd-tmpfiles-setup-dev-early \
+	systemd-tmpfiles-setup-dev \
+	systemd-tmpfiles-setup
 
 # Disable getty template units to prevent service failures caused by shared Hyper-V TTY devices across WSL instances
 # See https://github.com/microsoft/WSL/issues/13595
