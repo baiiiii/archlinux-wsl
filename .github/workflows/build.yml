@@ -1,0 +1,201 @@
+# 用 GitHub Actions 在 Arch Linux 容器里构建 WSL 镜像，并发布到本仓库的 Releases。
+#
+# 触发方式
+#   - 手动触发（workflow_dispatch）：可指定版本号、是否发布 Release、是否跑合规校验、是否 cosign 签名
+#   - 定时触发（schedule）：每月 1 日 03:00 UTC 自动构建并发布
+#     注意：GitHub 会在仓库连续 60 天无提交后暂停定时工作流，届时需到 Actions 页面手动重新启用
+#
+# 关于版本号与可复现构建
+#   版本号形如 YYYY.MM.DD.<序号>，前 3 段决定 Arch 仓库快照日期（版本日期前一天），
+#   所以同一个版本号始终对应同一份仓库快照，重复构建可得到逐位一致的镜像。
+#
+# 与上游 GitLab CI 的差异
+#   上游还会做 diffoscope 逐位复现校验（make repro）并用 cosign 签名。
+#   这里签名改为可选（sign 输入），复现校验未纳入默认流程（会让构建时间翻倍）；
+#   需要时在“构建镜像”之后加一步 make repro IMAGE_VERSION="${IMAGE_VERSION}" 即可（需先安装 diffoscope）。
+
+name: 构建 WSL 镜像
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_version:
+        description: 镜像版本号 YYYY.MM.DD[.序号]，留空则用当天 UTC 日期加运行序号
+        required: false
+        type: string
+      release:
+        description: 构建成功后发布到 Releases
+        type: boolean
+        default: true
+      run_tests:
+        description: 运行合规校验 make test（含微软的 validate-modern.py），失败不阻塞发布
+        type: boolean
+        default: true
+      sign:
+        description: 用 cosign 无密钥签名，产物会多一个 .wsl.bundle
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 3 1 * *'
+
+# 同一分支串行构建，避免两次运行同时创建同名 Release
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # 创建 Release
+  id-token: write # cosign 无密钥签名所需的 OIDC 令牌
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: 构建并发布
+    runs-on: ubuntu-latest
+    # 与上游 GitLab CI 一致：在 Arch 容器里构建。fakechroot/fakeroot 是用户态的
+    # chroot 与 root 身份伪造，不需要特权，也不需要 Docker-in-Docker。
+    container: archlinux:latest
+    timeout-minutes: 240
+
+    steps:
+      # actions/checkout 依赖容器内的 git，所以先装 git 再检出
+      - name: 安装 git
+        run: pacman -Syu --needed --noconfirm git
+
+      - name: 检出仓库
+        uses: actions/checkout@v7
+
+      - name: 计算镜像版本
+        env:
+          INPUT_IMAGE_VERSION: ${{ inputs.image_version }}
+        run: |
+          version="${INPUT_IMAGE_VERSION:-$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}}"
+          # 只接受 YYYY.MM.DD 或 YYYY.MM.DD.<数字>：构建脚本按前三段推导仓库快照日期，格式错了会以难懂的方式失败
+          if [[ ! "${version}" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}(\.[0-9]+)?$ ]]; then
+            echo "::error::版本号格式非法：${version}（应为 YYYY.MM.DD 或 YYYY.MM.DD.<序号>）"
+            exit 1
+          fi
+          echo "IMAGE_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "本次镜像版本：${version}"
+
+      # 提前检查 tag 是否已被占用，避免构建完才发现发布不了
+      - name: 检查版本号是否已被占用
+        if: github.event_name == 'schedule' || inputs.release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pacman -Syu --needed --noconfirm github-cli
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${IMAGE_VERSION}" > /dev/null 2>&1; then
+            echo "::error::版本 ${IMAGE_VERSION} 已存在（tag 已被占用），请换一个版本号，或先删除对应的 Release 与 tag。"
+            exit 1
+          fi
+
+      - name: 安装构建依赖
+        # unzip 用于解 Maple Mono 的 zip，p7zip 用于解 Sarasa UI SC 的 7z
+        run: pacman -Syu --needed --noconfirm make devtools fakechroot fakeroot unzip p7zip
+
+      - name: 应用定制补丁
+        # 上游文件在仓库里保持原样，定制内容在 patch/ 里，构建前叠加到工作副本
+        run: bash patch/apply.sh
+
+      - name: 构建镜像
+        run: make build IMAGE_VERSION="${IMAGE_VERSION}"
+
+      - name: 校验镜像摘要
+        working-directory: workdir/output
+        run: sha256sum --check "archlinux-${IMAGE_VERSION}.wsl.SHA256"
+
+      # 上游 CI 的合规校验：chroot 内冒烟测试 + 微软官方 validate-modern.py。
+      # 它会 clone 上游 microsoft/WSL 仓库并安装未固定版本的 Python 依赖，可能因上游变动而假失败，
+      # 所以标记为不阻塞发布（失败只报警告）。
+      # 必须排在下面「统一产物文件名」之前：上游的 test-image.sh 内部按
+      # archlinux-<版本>.wsl 这个文件名找产物，重命名之后它就找不到了。
+      - name: 校验镜像合规性
+        if: github.event_name == 'schedule' || inputs.run_tests
+        continue-on-error: true
+        run: |
+          pacman -Syu --needed --noconfirm python
+          make test IMAGE_VERSION="${IMAGE_VERSION}"
+
+      # 产物统一命名为 archlinux.wsl，不带版本号；版本信息由 Release 的 tag 承载。
+      # 摘要文件要跟着重新生成，否则里面的文件名对不上。
+      - name: 统一产物文件名
+        working-directory: workdir/output
+        run: |
+          mv "archlinux-${IMAGE_VERSION}.wsl" archlinux.wsl
+          sha256sum archlinux.wsl > archlinux.wsl.SHA256
+
+      # 可选步骤。签名后的验证命令（产物已统一命名为 archlinux.wsl）：
+      #   cosign verify-blob archlinux.wsl --bundle archlinux.wsl.bundle \
+      #     --certificate-identity-regexp "https://github.com/<仓库>/.github/workflows/build.yml@.*" \
+      #     --certificate-oidc-issuer https://token.actions.githubusercontent.com
+      - name: 用 cosign 无密钥签名
+        if: github.event_name == 'workflow_dispatch' && inputs.sign
+        env:
+          COSIGN_YES: "true"
+        run: |
+          pacman -Syu --needed --noconfirm cosign
+          cosign sign-blob "workdir/output/archlinux.wsl" \
+            --bundle "workdir/output/archlinux.wsl.bundle"
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v7
+        with:
+          name: archlinux-wsl-image
+          path: |
+            workdir/output/archlinux.wsl
+            workdir/output/archlinux.wsl.SHA256
+            workdir/output/archlinux.wsl.bundle
+          retention-days: 7
+
+      - name: 发布到 Releases
+        if: github.event_name == 'schedule' || inputs.release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # github-cli 通常在上一步已经装好，这里再确认一次（比如只构建不发布时跳过检查步骤的情况）
+          pacman -Syu --needed --noconfirm github-cli
+
+          assets=(
+            "workdir/output/archlinux.wsl"
+            "workdir/output/archlinux.wsl.SHA256"
+          )
+          # 签名是可选的，有 .bundle 就一并附带
+          if [[ -f "workdir/output/archlinux.wsl.bundle" ]]; then
+            assets+=("workdir/output/archlinux.wsl.bundle")
+          fi
+
+          # 版本号前三段是镜像日期，仓库快照取它的前一天（与 scripts/build-image.sh 的算法一致）。
+          # GNU date 不认 "2026.09.24" 这种带点的日期，所以先转成带横线的写法。
+          build_date="$(awk -F. '{print $1"-"$2"-"$3}' <<< "${IMAGE_VERSION}")"
+          snapshot="$(date -u -d "${build_date} -1 day" +%Y/%m/%d)"
+          notes="${RUNNER_TEMP}/release-notes.md"
+          cat > "${notes}" <<EOF
+          Arch Linux WSL 镜像 ${IMAGE_VERSION}
+
+          基于 Arch Linux 官方仓库在 ${snapshot} 的归档快照构建，构建脚本来自上游 archlinux-wsl 项目，镜像内含 systemd。
+
+          镜像已预配置，开箱即用：
+
+          - 默认登录用户 arch（在 wheel 组，sudo 免密）
+          - 中文界面与 zh_CN.UTF-8 语言环境，pacman 用中科大 / 清华源
+          - fcitx5 输入法与拼音预置，登录 shell 时自动启动
+          - 全系统统一使用 Maple Mono Normal NL NF CN 字体
+          - WSLg 走 D3D12 硬件加速
+
+          - 安装（WSL 2.4.4 及以上）：下载 .wsl 文件后双击安装
+          - 手动导入：wsl --import <发行版名> <安装目录> <镜像文件>
+          - 手动导入后首次启动需执行 /usr/lib/wsl/first-setup.sh 初始化 pacman 密钥环
+          - 校验完整性：sha256sum --check archlinux.wsl.SHA256
+          EOF
+
+          gh release create "${IMAGE_VERSION}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --title "Arch Linux WSL 镜像 ${IMAGE_VERSION}" \
+            --notes-file "${notes}" \
+            --latest \
+            "${assets[@]}"
