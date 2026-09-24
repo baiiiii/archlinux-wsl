@@ -1,11 +1,10 @@
 #!/bin/bash
 #
 # 镜像定制脚本，由 build-image.sh 在 systemd-sysusers 之后调用。
-# 必须在那之后：useradd -G wheel 依赖 sysusers 创建的 wheel 组
-# （该组由 /usr/lib/sysusers.d/basic.conf 定义）。
-#
-# 相对上游新增的镜像内容全部集中在这里，build-image.sh 保持与上游一致
-# （只多一行对本脚本的调用），便于日后与上游对比，也便于单独阅读定制逻辑。
+# 相对上游新增的镜像内容全部集中在这里：追加软件包、中文字体、
+# fontconfig 断链修复、locale、静态文件权限。
+# 默认用户不在构建期创建（曾因 fakeroot 虚拟属主导致家目录归 root），
+# 改由 first-setup.sh 在首次启动时创建，见 patch/rootfs/usr/lib/wsl/。
 #
 # 用法：customize-image.sh <构建树目录> <工作目录>
 
@@ -44,10 +43,6 @@ declare -r SANS_FONT_URL="https://github.com/be5invis/Sarasa-Gothic/releases/dow
 declare -r SANS_FONT_SHA256="568015e578037cdcfb7c55d522f7e861e11ecd304824d6c94965cbb2187a8d78"
 declare -r SANS_FONT_DIR="/usr/local/share/fonts/sarasa-ui-sc"
 declare -ra SANS_FONT_WEIGHTS=(Regular Bold Italic BoldItalic)
-
-# 默认登录用户，由 /etc/wsl.conf 的 [user] default 指定
-# 不设密码：/etc/shadow 里不会有随机 salt，镜像逐位可复现不受影响
-declare -r NEW_USER="arch"
 
 # ---------- 安装追加软件包 ----------
 #
@@ -153,41 +148,16 @@ fakechroot -- fakeroot -- chroot "$BUILDDIR" locale-gen
 # 做这个符号链接，让镜像里写死的 LANG=zh_CN.UTF-8 说了算
 ln -sf /etc/locale.conf "$BUILDDIR/etc/default/locale"
 
-# ---------- 创建默认用户 ----------
-# skel 的权限必须先设好：useradd -m 会把 /etc/skel 整份复制进家目录，
-# 复制之后再改 skel 的权限，对已经建好的家目录没有任何作用
-# （家目录里那份会是 cp 时的 755/644，而不是期望的 700/600）。
-# git 只记录可执行位，这几个权限位要在构建时补回来。
+# ---------- 补齐静态文件权限 ----------
+# git 只记录可执行位，其余权限位要在构建时补回来。
+# 默认用户不在构建期创建：fakechroot/fakeroot 的虚拟属主不会保留到打包阶段，
+# 曾导致打包出的 /home/arch 归 root、用户登录时报 chdir failed 13。
+# 现在用户由 rootfs/usr/lib/wsl/first-setup.sh 在首次启动（OOBE，真实 root）时创建。
+# 注意：skel 的权限必须在这里设好，first-setup.sh 里 useradd -m 复制 /etc/skel 时
+# 会带上这些权限位（700/600），而不是默认的 755/644。
 chmod 440 "$BUILDDIR/etc/sudoers.d/wheel"
 chmod 700 "$BUILDDIR/etc/skel/.config/fcitx5"
 chmod 600 "$BUILDDIR/etc/skel/.config/fcitx5/profile"
-
-echo -e "\n-- Creating user ${NEW_USER} --\n"
-fakechroot -- fakeroot -- chroot "$BUILDDIR" \
-    /usr/bin/useradd -m -G wheel -s /bin/bash "$NEW_USER"
-fakechroot -- fakeroot -- chroot "$BUILDDIR" \
-    install -d -m 700 "/home/$NEW_USER/.config" "/home/$NEW_USER/.cache" "/home/$NEW_USER/.local/share"
-
-# 家目录属主。useradd 是在 fakeroot 会话里跑的，那次会话的虚拟属主记录不会保留到
-# 打包阶段，所以这里在 fakeroot 之外真实 chown 一次（CI 里构建者是 root，有效）。
-# 本地以普通用户构建时这一步会失败，此时属主由打包阶段决定，不影响功能。
-NEW_USER_UID=$(fakechroot -- fakeroot -- chroot "$BUILDDIR" id -u "$NEW_USER")
-NEW_USER_GID=$(fakechroot -- fakeroot -- chroot "$BUILDDIR" id -g "$NEW_USER")
-echo "    ${NEW_USER} -> uid ${NEW_USER_UID}, gid ${NEW_USER_GID}"
-if ! chown -R "${NEW_USER_UID}:${NEW_USER_GID}" "$BUILDDIR/home/$NEW_USER" 2>/dev/null; then
-    echo "    (非 root 构建，家目录属主留给打包阶段处理)"
-fi
-
-# 校验家目录属主确实落在用户身上。若属主是 root，该用户登录后连 chdir 都进不去
-# （表现为 shell 落在 /、写 ~/.bash_profile 报权限不够），必须在构建期就拦住，
-# 而不是等装完镜像才发现。上一版把 chown 写在 fakeroot 会话里，虚拟属主不落盘，
-# 打包出来的家目录就归了 root。
-home_owner=$(stat -c '%u:%g' "$BUILDDIR/home/$NEW_USER" 2>/dev/null || echo '?')
-if [[ "$home_owner" != "${NEW_USER_UID}:${NEW_USER_GID}" ]]; then
-    echo "!! /home/${NEW_USER} 的属主是 ${home_owner}，期望 ${NEW_USER_UID}:${NEW_USER_GID}" >&2
-    exit 1
-fi
-echo "    家目录属主 ${home_owner} 已就位"
 
 # ---------- 校验字体配置 ----------
 # 只做文件级检查，不在 chroot 里跑 fc-pattern/fc-match：conf.d 下的链接是镜像内
