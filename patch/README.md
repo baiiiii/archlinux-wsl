@@ -36,7 +36,7 @@ make build IMAGE_VERSION=YYYY.MM.DD
 
 | 路径 | 替换/新增 | 内容 |
 | --- | --- | --- |
-| `rootfs/etc/wsl.conf` | **替换** | 在上游原有 `[boot] systemd=true` 之外追加 `[user] default=arch` |
+| `rootfs/etc/wsl.conf` | **替换** | 内容与上游一致（`[boot] systemd=true`）。不能预置 `[user] default=arch`：WSL 在 OOBE 之前就解析默认用户，用户尚不存在会报 `getpwnam(arch) failed` 并回退 root；改由 `first-setup.sh` 创建用户后运行时写入。保留此文件是为了覆盖工作副本中旧版补丁的残留 |
 | `rootfs/etc/locale.conf` | **替换** | `LANG=zh_CN.UTF-8`（上游是 `C.UTF-8`） |
 | `rootfs/etc/pacman.d/mirrorlist` | **替换** | 中科大 + 清华（上游是 fastly + geo） |
 | `rootfs/usr/lib/wsl/first-setup.sh` | **替换** | 首次启动（OOBE）时创建默认用户 `arch`：以真实 root 执行，家目录属主天然正确；幂等，用户已存在则跳过 |
@@ -58,10 +58,12 @@ make build IMAGE_VERSION=YYYY.MM.DD
 - 默认用户 `arch` 不在构建期创建：构建期 useradd 跑在 fakechroot/fakeroot 里，
   家目录属主是虚拟记账、打包时不落盘，曾导致镜像里 `/home/arch` 归 root，
   用户登录报 `chdir failed 13`。现在由 `first-setup.sh` 在首次启动（OOBE，
-  真实 root）时创建，属主天然正确。`wsl --import` 手动导入不触发 OOBE，
-  需手动执行一次 `/usr/lib/wsl/first-setup.sh`（初始化 keyring 的既有步骤）。
-- 用户名出现在两处，改名需同步：`patch/rootfs/usr/lib/wsl/first-setup.sh`
-  里的 `NEW_USER` 与 `patch/rootfs/etc/wsl.conf` 的 `[user] default`。
+  真实 root）时创建，属主天然正确；创建成功后脚本再把 `[user] default=arch`
+  写入 `/etc/wsl.conf`，从下一次启动生效（首次会话仍是 root，脚本会提示
+  exit 后重进）。`wsl --import` 手动导入不触发 OOBE，需手动执行一次
+  `/usr/lib/wsl/first-setup.sh`，之后同样 exit 重进即以 arch 登录。
+- 用户名集中在一处：`patch/rootfs/usr/lib/wsl/first-setup.sh` 里的
+  `NEW_USER`，wsl.conf 的 default 由脚本据此写入，改名不用改其他文件。
 - `customize-image.sh` 里跳过了 `qt6-webengine`（fcitx5-chinese-addons 的强制依赖，
   连带 421 MiB 的 Qt 与 ffmpeg 依赖树）。这个假设不会写进 pacman 数据库，
   所以日后 `fcitx5-chinese-addons` 升级时会被装回来；要长期避免需在 `pacman.conf`
