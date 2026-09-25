@@ -6,7 +6,7 @@ Welcome to the Arch Linux WSL image!
 
 This image is maintained at <https://github.com/baiiiii/archlinux-wsl>.
 
-Please, report bugs at <https://github.com/baiiiii/archlinux-wsl/-/issues>.
+Please, report bugs at <https://github.com/baiiiii/archlinux-wsl/issues>.
 Note that WSL 1 is not supported.
 
 For more information about this WSL image and its usage (including "tips and tricks" and troubleshooting steps), see the related Arch Wiki page at <https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL>.
