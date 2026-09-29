@@ -24,8 +24,6 @@ declare -ra PKGS_EXTRA=(
     mesa-utils vulkan-dzn vulkan-icd-loader
     # AppImage / Electron 应用在最小系统上缺失的运行时库
     fuse2 nspr nss at-spi2-core libcups gtk3 libxcomposite libxdamage libxfixes libxrandr alsa-lib
-    # 输入法：fcitx5-im 含本体与 GTK/Qt 前端，fcitx5-chinese-addons 提供拼音等中文引擎
-    fcitx5-im fcitx5-chinese-addons
 )
 
 # 等宽字体：Maple Mono，Normal 预设字形（接近 JetBrains Mono，带斜杠零）、关闭连字、
@@ -45,16 +43,6 @@ declare -r SANS_FONT_DIR="/usr/local/share/fonts/sarasa-ui-sc"
 declare -ra SANS_FONT_WEIGHTS=(Regular Bold Italic BoldItalic)
 
 # ---------- 安装追加软件包 ----------
-#
-# --assume-installed qt6-webengine：fcitx5-chinese-addons 把它声明为强制依赖，
-# 连带拽进 qt6-declarative / qt6-webchannel / qt6-positioning，装完合计 421 MiB、
-# 进镜像压缩后约 140 MiB，但这里只是用来打中文，根本用不到 Chromium 内核。
-# 让 pacman 认为它已安装即可跳过整条链；受影响的只有 configtool 里的拼音词典管理
-# 插件（libpinyindictmanager.so），输入法核心不受影响。
-#
-# 注意：这个假设不会写进 pacman 数据库，所以日后 fcitx5-chinese-addons 自身升级时，
-# pacman 会重新解析依赖并把 qt6-webengine 装回来。要长期避免需要在 pacman.conf 里
-# IgnorePkg 掉该包。
 echo -e "\n-- Installing extra packages --\n"
 fakechroot -- fakeroot -- \
     pacman -S --disable-sandbox-filesystem -r "$BUILDDIR" \
@@ -63,7 +51,6 @@ fakechroot -- fakeroot -- \
         --config "$PACMAN_CONF" \
         --noscriptlet \
         --hookdir "$BUILDDIR/alpm-hooks/usr/share/libalpm/hooks/" \
-        --assume-installed qt6-webengine \
         "${PKGS_EXTRA[@]}"
 
 # ---------- 修复 fontconfig 的配置符号链接 ----------
@@ -153,11 +140,7 @@ ln -sf /etc/locale.conf "$BUILDDIR/etc/default/locale"
 # 默认用户不在构建期创建：fakechroot/fakeroot 的虚拟属主不会保留到打包阶段，
 # 曾导致打包出的 /home/arch 归 root、用户登录时报 chdir failed 13。
 # 现在用户由 rootfs/usr/lib/wsl/first-setup.sh 在首次启动（OOBE，真实 root）时创建。
-# 注意：skel 的权限必须在这里设好，first-setup.sh 里 useradd -m 复制 /etc/skel 时
-# 会带上这些权限位（700/600），而不是默认的 755/644。
 chmod 440 "$BUILDDIR/etc/sudoers.d/wheel"
-chmod 700 "$BUILDDIR/etc/skel/.config/fcitx5"
-chmod 600 "$BUILDDIR/etc/skel/.config/fcitx5/profile"
 
 # ---------- 校验字体配置 ----------
 # 只做文件级检查，不在 chroot 里跑 fc-pattern/fc-match：conf.d 下的链接是镜像内

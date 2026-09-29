@@ -182,7 +182,6 @@ jobs:
 
           - 默认登录用户 arch（在 wheel 组，sudo 免密）
           - 中文界面与 zh_CN.UTF-8 语言环境，pacman 用中科大 / 清华源
-          - fcitx5 输入法与拼音预置，登录 shell 时自动启动
           - 全系统统一使用 Maple Mono Normal NL NF CN 字体
           - WSLg 走 D3D12 硬件加速
 

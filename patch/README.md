@@ -31,7 +31,7 @@ make build IMAGE_VERSION=YYYY.MM.DD
 ### `rootfs/` 下的静态文件
 
 `patch/rootfs/` 会整体覆盖到仓库的 `rootfs/`。其中 **4 个是替换上游同名文件**
-（它们本来就是上游 `rootfs/` 的一部分，只能整体覆盖），**5 个是新增**的
+（它们本来就是上游 `rootfs/` 的一部分，只能整体覆盖），**3 个是新增**的
 （上游 `rootfs/` 里没有对应文件）。
 
 | 路径 | 替换/新增 | 内容 |
@@ -41,9 +41,7 @@ make build IMAGE_VERSION=YYYY.MM.DD
 | `rootfs/etc/pacman.d/mirrorlist` | **替换** | 中科大 + 清华（上游是 fastly + geo） |
 | `rootfs/usr/lib/wsl/first-setup.sh` | **替换** | 首次启动（OOBE）时创建默认用户 `arch`：以真实 root 执行，家目录属主天然正确；幂等，用户已存在则跳过 |
 | `rootfs/etc/sudoers.d/wheel` | **新增** | wheel 组免密 sudo |
-| `rootfs/etc/profile.d/fcitx5.sh` | **新增** | 输入法环境变量与登录自启 |
 | `rootfs/etc/profile.d/d3d12.sh` | **新增** | WSLg 走 D3D12 硬件加速 |
-| `rootfs/etc/skel/.config/fcitx5/profile` | **新增** | 预置拼音输入法 |
 | `rootfs/etc/fonts/local.conf` | **新增** | 界面字体 Sarasa UI SC，等宽字体 Maple Mono |
 
 上游 `rootfs/` 未被覆盖的文件：
@@ -64,7 +62,3 @@ make build IMAGE_VERSION=YYYY.MM.DD
   `/usr/lib/wsl/first-setup.sh`，之后同样 exit 重进即以 arch 登录。
 - 用户名集中在一处：`patch/rootfs/usr/lib/wsl/first-setup.sh` 里的
   `NEW_USER`，wsl.conf 的 default 由脚本据此写入，改名不用改其他文件。
-- `customize-image.sh` 里跳过了 `qt6-webengine`（fcitx5-chinese-addons 的强制依赖，
-  连带 421 MiB 的 Qt 与 ffmpeg 依赖树）。这个假设不会写进 pacman 数据库，
-  所以日后 `fcitx5-chinese-addons` 升级时会被装回来；要长期避免需在 `pacman.conf`
-  里 `IgnorePkg` 掉该包。
